@@ -1,6 +1,18 @@
 import mne
-import sys
+from argparse import ArgumentParser
+import IPython
 
-raw_fname = sys.argv[1]
+parser = ArgumentParser(description="Open .fif file in ipython console")
+parser.add_argument("path", help="FIF file to open")
+args = parser.parse_args()
 
-raw = mne.io.Raw(raw_fname, verbose="ERROR")
+fname = args.path
+
+if fname.endswith("epo.fif"):
+    epo = mne.read_epochs(fname, verbose="ERROR")
+    header = "Read mne-python epochs into `epo`."
+else:
+    raw = mne.io.Raw(fname, verbose="ERROR")
+    header = "Read mne-python raw into `raw`."
+
+IPython.embed(colors="neutral", header=header)
