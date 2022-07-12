@@ -22,4 +22,4 @@ class IcaFif:
 
 def initialize():
     factory.register("_ica.fif", IcaFif)
-    factory.register("-epo.fif", IcaFif)
+    factory.register("-ica.fif", IcaFif)
