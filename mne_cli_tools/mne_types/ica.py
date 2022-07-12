@@ -20,6 +20,6 @@ class IcaFif:
         return asdict(self)
 
 
-def initialize():
-    factory.register("_ica.fif", IcaFif)
-    factory.register("-ica.fif", IcaFif)
+def initialize(extensions: list[str]) -> None:
+    for ext in extensions:
+        factory.register(ext, IcaFif)

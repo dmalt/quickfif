@@ -43,16 +43,6 @@ class RawFif:
         return asdict(self)
 
 
-def initialize():
-    factory.register("raw.fif", RawFif)
-    factory.register("raw_sss.fif", RawFif)
-    factory.register("raw_tsss.fif", RawFif)
-    factory.register("_meg.fif", RawFif)
-    factory.register("_eeg.fif", RawFif)
-    factory.register("_ieeg.fif", RawFif)
-    factory.register("raw.fif.gz", RawFif)
-    factory.register("raw_sss.fif.gz", RawFif)
-    factory.register("raw_tsss.fif.gz", RawFif)
-    factory.register("_meg.fif.gz", RawFif)
-    factory.register("_eeg.fif.gz", RawFif)
-    factory.register("_ieeg.fif.gz", RawFif)
+def initialize(extensions: list[str]) -> None:
+    for ext in extensions:
+        factory.register(ext, RawFif)

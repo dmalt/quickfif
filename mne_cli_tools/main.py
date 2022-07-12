@@ -1,6 +1,5 @@
 import json
 import shutil
-from collections import defaultdict
 from pathlib import Path
 
 import click
@@ -16,21 +15,14 @@ default_config = Path(__file__).resolve().parent / "config.json"
 def load_plugins(ctx, param, cfg_path: str) -> None:
     with open(cfg_path, "r") as f:
         cfg = json.load(f)
-    loader.load_plugins(cfg["plugins"])
+    loader.load_plugins(cfg["ftype_plugins"])
+    return cfg
 
 
 def show_extensions(ctx, param, value):
     if not value:
         return
-    dd = defaultdict(list)
-    for k, v in sorted(factory.registered_types.items()):
-        dd[v.__name__].append(k)
-
-    for k, v in sorted(dd.items()):
-        click.echo(k + ":")
-        for ext in v:
-            click.echo("\t" + ext)
-
+    click.echo(json.dumps(ctx.params["config"], indent=2))
     ctx.exit()
 
 
@@ -43,14 +35,13 @@ def show_extensions(ctx, param, value):
     help="path to configuration json",
     type=click.Path(exists=True),
     callback=load_plugins,
-    expose_value=False,
     is_eager=True,
 )
 @click.option(
-    "--show-extensions", is_flag=True, callback=show_extensions, expose_value=False, is_eager=False
+    "--show-config", is_flag=True, callback=show_extensions, is_eager=False, expose_value=False
 )
 @click.pass_context
-def main(ctx, fname) -> None:
+def main(ctx, fname, config) -> None:
     """Show file preview"""
     ctx.ensure_object(dict)
     ctx.obj["mne_object"] = factory.create(fname)

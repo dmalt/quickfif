@@ -3,7 +3,7 @@ from dataclasses import asdict, dataclass, field
 import mne  # type: ignore
 import pandas as pd
 
-from .. import factory
+from mne_cli_tools import factory
 
 pd.set_option('display.float_format', lambda x: '%.2f' % x)
 
@@ -34,6 +34,6 @@ def get_annots_pandas_summary_str(annots):
     return joint_df
 
 
-def initialize() -> None:
-    factory.register("_annot.fif", AnnotsFif)
-    factory.register("-annot.fif", AnnotsFif)
+def initialize(extensions: list[str]) -> None:
+    for ext in extensions:
+        factory.register(ext, AnnotsFif)

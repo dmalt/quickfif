@@ -55,8 +55,8 @@ ext fif = mct -- "$1" inspect
 For a complete ranger configuration example, checkout my [ranger configuration](https://github.com/dmalt/dotfiles/tree/master/ranger)
 
 
-Other tools
-===========
+Other functionality
+===================
 
 ### Splits-awere copying for large `.fif` files.
 
@@ -74,12 +74,17 @@ mct <filename_meg.fif> copy <dst_meg.fif>
 ```
 
 
-### Listing supported extensions
+### Supported file types and configuration
 
 Under the hood `mct` relies on file extensions to determine the correct type.
-To list the supported types and the associated extensions, run
+These extensions and the associated types are set up via plugins, which are specified
+in the configuration `.json` file.
+
+To show current configuration, run
 
 ```bash
-mct --show-extensions
+mct --show-config
 ```
+
+To specify a custom configuration, use `--config` flag
 

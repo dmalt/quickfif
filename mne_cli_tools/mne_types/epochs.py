@@ -20,6 +20,6 @@ class EpochsFif:
         return asdict(self)
 
 
-def initialize():
-    factory.register("_epo.fif", EpochsFif)
-    factory.register("-epo.fif", EpochsFif)
+def initialize(extensions: list[str]) -> None:
+    for ext in extensions:
+        factory.register(ext, EpochsFif)
