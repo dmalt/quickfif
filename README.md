@@ -21,3 +21,13 @@ To preview the file, run
 ```bash
 mct <filename.fif>
 ```
+
+![preview example](https://github.com/dmalt/mne-cli-tools/blob/master/docs/preview.png?raw=true)
+
+To inspect the file in ipython console, run
+
+```bash
+mct <filename.fif> inspect
+```
+
+![inspect example](https://github.com/dmalt/mne-cli-tools/blob/master/docs/inspect.png?raw=true)
