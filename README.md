@@ -74,3 +74,12 @@ mct <filename_meg.fif> copy <dst_meg.fif>
 ```
 
 
+### Listing supported extensions
+
+Under the hood `mct` relies on file extensions to determine the correct type.
+To list the supported types and the associated extensions, run
+
+```bash
+mct --show-extensions
+```
+

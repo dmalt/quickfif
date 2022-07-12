@@ -1,5 +1,6 @@
 import json
 import shutil
+from collections import defaultdict
 from pathlib import Path
 
 import click
@@ -12,6 +13,27 @@ matplotlib.use("TkAgg")
 default_config = Path(__file__).resolve().parent / "config.json"
 
 
+def load_plugins(ctx, param, cfg_path: str) -> None:
+    with open(cfg_path, "r") as f:
+        cfg = json.load(f)
+    loader.load_plugins(cfg["plugins"])
+
+
+def show_extensions(ctx, param, value):
+    if not value:
+        return
+    dd = defaultdict(list)
+    for k, v in sorted(factory.registered_types.items()):
+        dd[v.__name__].append(k)
+
+    for k, v in sorted(dd.items()):
+        click.echo(k + ":")
+        for ext in v:
+            click.echo("\t" + ext)
+
+    ctx.exit()
+
+
 @click.group(invoke_without_command=True)
 @click.argument("fname", type=click.Path(exists=True))
 @click.option(
@@ -20,15 +42,17 @@ default_config = Path(__file__).resolve().parent / "config.json"
     default=default_config,
     help="path to configuration json",
     type=click.Path(exists=True),
+    callback=load_plugins,
+    expose_value=False,
+    is_eager=True,
+)
+@click.option(
+    "--show-extensions", is_flag=True, callback=show_extensions, expose_value=False, is_eager=False
 )
 @click.pass_context
-def main(ctx, fname, config) -> None:
+def main(ctx, fname) -> None:
     """Show file preview"""
     ctx.ensure_object(dict)
-    with open(config, "r") as f:
-        cfg = json.load(f)
-
-    loader.load_plugins(cfg["plugins"])
     ctx.obj["mne_object"] = factory.create(fname)
 
     if ctx.invoked_subcommand is None:
