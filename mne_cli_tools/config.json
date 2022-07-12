@@ -1,0 +1,8 @@
+{
+    "plugins": [
+        "mne_cli_tools.mne_types.raw_fif",
+        "mne_cli_tools.mne_types.annotations",
+        "mne_cli_tools.mne_types.epochs",
+        "mne_cli_tools.mne_types.ica"
+    ]
+}
