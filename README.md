@@ -53,3 +53,24 @@ ext fif = mct -- "$1" inspect
 ```
 
 For a complete ranger configuration example, checkout my [ranger configuration](https://github.com/dmalt/dotfiles/tree/master/ranger)
+
+
+Other tools
+===========
+
+### Splits-awere copying for large `.fif` files.
+
+`.fif` format doesn't support files larger than 2 GB. To bypass this issue,
+large `.fif` files are stored in the so-called splits, when the file is divided
+into parts under 2 GB which are stored separately. The drawback of such scheme
+is that the first file has to internally maintain links to the next splits
+which are tied to the filenames. It makes splits renaming problematic, since
+the reanming breaks the internal filename links. To copy the large `.fif` file
+properly, we need to read it and then write with a new file name. The following
+command is a shortcut for that.
+
+```
+mct <filename_meg.fif> copy <dst_meg.fif>
+```
+
+
