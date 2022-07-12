@@ -67,7 +67,7 @@ is that the first file has to internally maintain links to the next splits
 which are tied to the filenames. It makes splits renaming problematic, since
 the reanming breaks the internal filename links. To copy the large `.fif` file
 properly, we need to read it and then write with a new file name. The following
-command is a shortcut for that.
+command is a shortcut for that:
 
 ```
 mct <filename_meg.fif> copy <dst_meg.fif>
