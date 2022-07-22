@@ -16,7 +16,7 @@ pipx install git+https://github.com/dmalt/mne-cli-tools.git
 
 The `mct` command should now be available in the terminal.
 
-To preview the file, run
+To preview a file, run
 
 ```bash
 mct <filename.fif>
