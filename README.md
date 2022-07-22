@@ -86,7 +86,48 @@ To show current configuration, run
 mct --show-config
 ```
 
-To specify a custom configuration, use `--config` flag
+The command will show current configuration in json format, e.g:
+```json
+{
+  "ftype_plugins": {
+    "mne_cli_tools.mne_types.raw_fif": {
+      "extensions": [
+        "raw.fif",
+        "raw_sss.fif",
+        "raw_tsss.fif",
+        "_meg.fif",
+        "_eeg.fif",
+        "_ieeg.fif",
+        "raw.fif.gz",
+        "raw_sss.fif.gz",
+        "raw_tsss.fif.gz",
+        "_meg.fif.gz",
+        "_eeg.fif.gz",
+        "_ieeg.fif.gz"
+      ]
+    },
+    "mne_cli_tools.mne_types.annotations": {
+      "extensions": [
+        "_annot.fif",
+        "-annot.fif"
+      ]
+    },
+    "mne_cli_tools.mne_types.epochs": {
+      "extensions": [
+        "-epo.fif",
+        "_epo.fif"
+      ]
+    },
+    "mne_cli_tools.mne_types.ica": {
+      "extensions": [
+        "_ica.fif",
+        "-ica.fif"
+      ]
+    }
+  }
+}
+```
+To specify a custom configuration, use `--config` flag.
 
 
 ### Extending mct
