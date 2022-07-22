@@ -11,7 +11,7 @@ To install the tools, run
 
 ```bash
 python3 -m pip install --user pipx
-pipx install git+https://github.com/ranger/ranger.git
+pipx install git+https://github.com/dmalt/mne-cli-tools.git
 ```
 
 The `mct` command should now be available in the terminal.
