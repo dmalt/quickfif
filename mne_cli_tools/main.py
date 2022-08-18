@@ -29,6 +29,13 @@ def show_extensions(ctx, param, value):
 @click.group(invoke_without_command=True)
 @click.argument("fname", type=click.Path(exists=True))
 @click.option(
+    "-e",
+    "--ext",
+    default="auto",
+    help="specify file type via extension; if auto, get extension from the filename",
+    type=str,
+)
+@click.option(
     "-c",
     "--config",
     default=default_config,
@@ -41,10 +48,13 @@ def show_extensions(ctx, param, value):
     "--show-config", is_flag=True, callback=show_extensions, is_eager=False, expose_value=False
 )
 @click.pass_context
-def main(ctx, fname, config) -> None:
+def main(ctx, fname, ext, config) -> None:
     """Show file preview"""
     ctx.ensure_object(dict)
-    ctx.obj["mne_object"] = factory.create(fname)
+    if ext == "auto":
+        ctx.obj["mne_object"] = factory.create_auto(fname)
+    else:
+        ctx.obj["mne_object"] = factory.create_by_ext(fname, ext)
 
     if ctx.invoked_subcommand is None:
         print(ctx.obj["mne_object"])

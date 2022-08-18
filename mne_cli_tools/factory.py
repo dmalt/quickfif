@@ -14,10 +14,15 @@ def unregister(type: str) -> None:
     registered_types.pop(type, None)
 
 
-def create(fname: str) -> MneType:
+def create_auto(fname: str) -> MneType:
     for ext, mne_type_creator in registered_types.items():
         if fname.endswith(ext):
             break
     else:
         mne_type_creator = Unsupported
+    return mne_type_creator(fname)
+
+
+def create_by_ext(fname: str, ext: str) -> MneType:
+    mne_type_creator = registered_types.get(ext, Unsupported)
     return mne_type_creator(fname)
