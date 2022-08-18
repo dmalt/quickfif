@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mne_cli_tools"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Dmitrii Altukhov <dm.altukhov@ya.ru>"]
 [tool.poetry.scripts]
