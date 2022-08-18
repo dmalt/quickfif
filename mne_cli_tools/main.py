@@ -32,7 +32,7 @@ def show_extensions(ctx, param, value):
     "-e",
     "--ext",
     default="auto",
-    help="specify file type via extension; if auto, get extension from the filename",
+    help="specify file type via extension; if auto, get extension from the filename; default=auto",
     type=str,
 )
 @click.option(
