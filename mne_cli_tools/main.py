@@ -58,7 +58,7 @@ def show_extensions(ctx, param, value):
 def main(ctx, fname, ext, config) -> None:
     """Show file preview"""
     ctx.ensure_object(dict)
-    if ext == "auto":
+    if ext is None:
         ctx.obj["mne_object"] = factory.create_auto(fname)
     else:
         ctx.obj["mne_object"] = factory.create_by_ext(fname, ext)
