@@ -31,21 +31,28 @@ def show_extensions(ctx, param, value):
 @click.option(
     "-e",
     "--ext",
-    default="auto",
-    help="specify file type via extension; if auto, get extension from the filename; default=auto",
-    type=str,
+    help=(
+        "Manually specify filetype via extension instead of getting it from"
+        "fname in case the file is named unconventially; use --show-config to get "
+        "the list of supported extensions"
+    ),
 )
 @click.option(
     "-c",
     "--config",
     default=default_config,
-    help="path to configuration json",
+    help=f"Specify path to configuration json; default={default_config}",
     type=click.Path(exists=True),
     callback=load_plugins,
     is_eager=True,
 )
 @click.option(
-    "--show-config", is_flag=True, callback=show_extensions, is_eager=False, expose_value=False
+    "--show-config",
+    is_flag=True,
+    callback=show_extensions,
+    is_eager=False,
+    expose_value=False,
+    help="Show current configuration and exit",
 )
 @click.pass_context
 def main(ctx, fname, ext, config) -> None:
