@@ -1,6 +1,8 @@
+"""CLI entry point."""
 import json
 import shutil
 from pathlib import Path
+from typing import Any
 
 import click
 import matplotlib
@@ -12,15 +14,14 @@ matplotlib.use("TkAgg")
 default_config = Path(__file__).resolve().parent / "config.json"
 
 
-def load_plugins(ctx, param, cfg_path: str) -> None:
-    with open(cfg_path, "r") as f:
-        cfg = json.load(f)
-    loader.load_plugins(cfg["ftype_plugins"])
-    return cfg
+def _load_config(unused1: click.Context, unused2: Any, cfg_path: str) -> dict[str, Any]:
+    del unused1, unused2  # noqa: WPS420
+    with open(cfg_path, "r") as cfg_file:
+        return json.load(cfg_file)
 
 
-def show_extensions(ctx, param, value):
-    if not value:
+def _show_config(ctx: click.Context, _: Any, should_show_config: bool) -> None:
+    if not should_show_config:
         return
     click.echo(json.dumps(ctx.params["config"], indent=2))
     ctx.exit()
@@ -33,51 +34,51 @@ def show_extensions(ctx, param, value):
     "--ext",
     help=(
         "Manually specify filetype via extension instead of getting it from"
-        "fname in case the file is named unconventially; use --show-config to get "
-        "the list of supported extensions"
+        + "fname in case the file is named unconventially; use --show-config to get "
+        + "the list of supported extensions"
     ),
 )
 @click.option(
     "-c",
     "--config",
     default=default_config,
-    help=f"Specify path to configuration json; default={default_config}",
+    help="Path to configuration JSON; default={0}".format(default_config),
     type=click.Path(exists=True),
-    callback=load_plugins,
+    callback=_load_config,
     is_eager=True,
 )
 @click.option(
     "--show-config",
     is_flag=True,
-    callback=show_extensions,
+    callback=_show_config,
     is_eager=False,
     expose_value=False,
     help="Show current configuration and exit",
 )
 @click.pass_context
-def main(ctx, fname, ext, config) -> None:
-    """Show file preview"""
+def main(ctx: click.Context, fname: str, ext: str | None, _: str) -> None:  # noqa: WPS216
+    """When invoked without subcommands: show file preview."""
     ctx.ensure_object(dict)
-    if ext is None:
-        ctx.obj["mne_object"] = factory.create_auto(fname)
-    else:
-        ctx.obj["mne_object"] = factory.create_by_ext(fname, ext)
+
+    loader.load_plugins(ctx.params["config"]["ftype_plugins"])
+    mne_obj = factory.create(fname, ext)
 
     if ctx.invoked_subcommand is None:
-        print(ctx.obj["mne_object"])
+        click.echo(mne_obj)
+    ctx.obj["mne_object"] = mne_obj
 
 
 @main.command()
 @click.pass_context
-def inspect(ctx):
-    """Inspect file in IPython interactive console"""
-    inspect_utils.embed(ctx.obj["mne_object"].to_dict())
+def inspect(ctx: click.Context) -> None:
+    """Inspect file in IPython interactive console."""
+    inspect_utils.embed_ipython(ctx.obj["mne_object"].to_dict())
 
 
 @main.command()
 @click.pass_context
 @click.argument("dst", type=click.Path())
-def copy(ctx, dst):
+def copy(ctx: click.Context, dst: str) -> None:
     """
     Safely copy mne file. Existing destination is overwritten.
 
@@ -85,7 +86,7 @@ def copy(ctx, dst):
 
     """
     mne_object = ctx.obj["mne_object"]
-    if hasattr(mne_object, "copy"):
+    try:
         mne_object.copy(dst)
-    else:
+    except AttributeError:
         shutil.copy2(mne_object.fname, dst)

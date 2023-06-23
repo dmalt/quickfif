@@ -1,17 +1,26 @@
+"""Plugins loading and initialization."""
 import importlib
+from typing import Protocol
 
 
-class PluginInterface:
+class SupportsInitialize(Protocol):
+    """Protocol defining the structure of the plugins module."""
+
     @staticmethod
-    def initialize(extensions: list[str]) -> None:
-        ...
+    def initialize(extensions: list[str]) -> None:  # noqa: WPS602
+        """Register constructors for extensions handled by the plugin."""
 
 
-def import_module(name: str) -> PluginInterface:
+def import_module(name: str) -> SupportsInitialize:
+    """Import plugin module."""
     return importlib.import_module(name)  # pyright: ignore
 
 
-def load_plugins(file_types: dict[str, dict[str, list[str]]]) -> None:
-    for ftype_module, module_config in file_types.items():
+_ModuleConfig = dict[str, list[str]]
+
+
+def load_plugins(plugins_config: dict[str, _ModuleConfig]) -> None:
+    """Load plugins according to the configuration."""
+    for ftype_module, module_config in plugins_config.items():
         plugin = import_module(ftype_module)
         plugin.initialize(module_config["extensions"])

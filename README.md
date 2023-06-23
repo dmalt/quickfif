@@ -1,11 +1,11 @@
-Tools to preview `.fif` files (raw data, epochs, annotations, ica solutions)
+# MNE CLI Tools
+
+Preview `.fif` files (raw data, epochs, annotations, ica solutions)
 info from terminal, inspect them in ipython console and more.
 Ready for integration with CLI-based file managers, such as
 [ranger](https://github.com/ranger/ranger).
 
-
-Quickstart
-==========
+## Quickstart
 
 To install the tools, run
 
@@ -32,12 +32,14 @@ mct <filename.fif> inspect
 
 ![inspect example](https://github.com/dmalt/mne-cli-tools/blob/master/docs/inspect.png?raw=true)
 
-From the ipython header you can see, that `fname` and `raw` objects were populated.
+From the ipython header you can see, that the loading script populated `fname`
+and `raw` objects.
 
-Ranger integration
-------------------
+### Ranger integration
 
-To enable `.fif` files preview, in `ranger/scope.sh` modify the extension-handling section:
+To enable `.fif` files preview, in `ranger/scope.sh` edit the
+extension-handling section:
+
 ```bash
 case "$extension" in
     # ...
@@ -48,20 +50,19 @@ esac
 ```
 
 For opening files from `ranger`, go to `ranger/rifle.conf` and add
-```
+
+```conf
 ext fif = mct -- "$1" inspect
 ```
 
 For a complete ranger configuration example, checkout my [ranger configuration](https://github.com/dmalt/dotfiles/tree/master/ranger)
 
+## Other functionality
 
-Other functionality
-===================
-
-### Splits-awere copying for large `.fif` files.
+### Splits-awere copying for large `.fif` files
 
 `.fif` format doesn't support files larger than 2 GB. To bypass this issue,
-large `.fif` files are stored in the so-called splits, when the file is divided
+large `.fif` files are stored in the so-called splits: the file is divided
 into parts under 2 GB which are stored separately. The drawback of such scheme
 is that the first file has to internally maintain links to the next splits
 which are tied to the filenames. It makes splits renaming problematic, since
@@ -69,14 +70,13 @@ the reanming breaks the internal filename links. To copy the large `.fif` file
 properly, we need to read it and then write with a new file name. The following
 command is a shortcut for that:
 
-```
+```bash
 mct <filename_meg.fif> copy <dst_meg.fif>
 ```
 
-
 ### Supported file types and configuration
 
-Under the hood `mct` relies on file extensions to determine the correct type.
+Under the hood, `mct` relies on file extensions to determine the correct type.
 These extensions and the associated types are set up via plugins, which are specified
 in the configuration `.json` file.
 
@@ -87,6 +87,7 @@ mct --show-config
 ```
 
 The command will show current configuration in json format, e.g:
+
 ```json
 {
   "ftype_plugins": {
@@ -107,34 +108,25 @@ The command will show current configuration in json format, e.g:
       ]
     },
     "mne_cli_tools.mne_types.annotations": {
-      "extensions": [
-        "_annot.fif",
-        "-annot.fif"
-      ]
+      "extensions": ["_annot.fif", "-annot.fif"]
     },
     "mne_cli_tools.mne_types.epochs": {
-      "extensions": [
-        "-epo.fif",
-        "_epo.fif"
-      ]
+      "extensions": ["-epo.fif", "_epo.fif"]
     },
     "mne_cli_tools.mne_types.ica": {
-      "extensions": [
-        "_ica.fif",
-        "-ica.fif"
-      ]
+      "extensions": ["_ica.fif", "-ica.fif"]
     }
   }
 }
 ```
+
 To specify a custom configuration, use `--config` flag.
 
+#### Extending mct
 
-### Extending mct
-
-`mct` utilized plugin-based architecture. It can be extended via creating an external module
-handling a particular file type and configuring the associated extensions via the configuration
-`.json` file (see the section above).
+`mct` utilizes plugin-based architecture. You can extend it via creating an
+external module handling a particular file type and configuring the associated
+extensions via the configuration `.json` file (see the section above).
 
 Below is a plugin example for epochs type:
 
@@ -167,5 +159,5 @@ def initialize(extensions: list[str]) -> None:
 ```
 
 To add this plugin to `pipx` virtualenv, use `pipx inject`. Then, create a
-custom configuration from `mct --show-config` and specify your `ftype_plugin` and the associated
-extensions.
+custom configuration from `mct --show-config` and specify your `ftype_plugin`
+and the associated extensions.
