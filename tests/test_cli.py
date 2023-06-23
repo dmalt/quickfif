@@ -19,4 +19,5 @@ def test_cli_fails_wo_args(cli_runner: CliRunner) -> None:
 def test_cli_fails_for_nonexistent_fname(cli_runner: CliRunner) -> None:
     """CLI must fail when supplied a nonexistent filename."""
     with cli_runner.isolated_filesystem():
-        assert cli_runner.invoke(main.main, ["Test"]).exit_code == 2
+        cli_result = cli_runner.invoke(main.main, ["i_dont_exist.fif"])
+        assert cli_result.exit_code == 2
