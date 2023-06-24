@@ -56,11 +56,16 @@ def _show_config(ctx: click.Context, _: Any, should_show_config: bool) -> None:
     help="Show current configuration and exit",
 )
 @click.pass_context
-def main(ctx: click.Context, fname: str, ext: str | None, _: str) -> None:  # noqa: WPS216
+def main(  # noqa: WPS216
+    ctx: click.Context,
+    fname: str,
+    ext: str | None,
+    config: dict[str, Any],
+) -> None:
     """When invoked without subcommands: show file preview."""
     ctx.ensure_object(dict)
 
-    loader.load_plugins(ctx.params["config"]["ftype_plugins"])
+    loader.load_plugins(config["ftype_plugins"])
     mne_obj = factory.create(fname, ext)
 
     if ctx.invoked_subcommand is None:
