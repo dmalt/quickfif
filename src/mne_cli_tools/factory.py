@@ -1,6 +1,8 @@
 """Manage creation of MNE objects."""
 from typing import Callable
 
+import click
+
 from mne_cli_tools.mne_types.base import MneType, Unsupported
 
 registered_types: dict[str, Callable[[str], MneType]] = {}
@@ -25,7 +27,10 @@ def create_auto(fname: str) -> MneType:
     """Automatically infer object type from fname and construct it."""
     for ext, mne_type_creator in registered_types.items():
         if fname.endswith(ext):
-            return mne_type_creator(fname)
+            try:
+                return mne_type_creator(fname)
+            except Exception as exc:
+                raise click.FileError(fname, hint=str(exc))
     return Unsupported(fname)
 
 
