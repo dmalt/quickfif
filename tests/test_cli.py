@@ -56,9 +56,25 @@ def empty_file(tmp_path_factory) -> str:
     return str(empty_fpath)
 
 
+@pytest.fixture(scope="session")
+def empty_fif_file(tmp_path_factory) -> str:
+    """Empty file fixture."""
+    empty_fpath = tmp_path_factory.mktemp("data") / "tmp_raw.fif"
+    empty_fpath.touch(exist_ok=True)
+    return str(empty_fpath)
+
+
 def test_cli_succeeds_on_empty_file_with_unsupported_ext(
     empty_file: str, cli_runner: CliRunner
 ) -> None:
     """Empty file should be."""
     cli_result = cli_runner.invoke(main.main, [empty_file])
+    assert cli_result.exit_code == 0
+
+
+def test_cli_succeeds_on_empty_raw_fif_file(
+    empty_fif_file: str, cli_runner: CliRunner
+) -> None:
+    """Empty file should be."""
+    cli_result = cli_runner.invoke(main.main, [empty_fif_file])
     assert cli_result.exit_code == 0
