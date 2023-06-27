@@ -56,7 +56,7 @@ def _show_config(ctx: click.Context, _: Any, should_show_config: bool) -> None:
     help="Show current configuration and exit",
 )
 @click.pass_context
-def main(  # noqa: WPS216
+def main(  # noqa: WPS216 (too many decorators)
     ctx: click.Context,
     fname: str,
     ext: str | None,
