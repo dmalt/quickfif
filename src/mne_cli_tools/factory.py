@@ -1,5 +1,5 @@
 """Manage creation of MNE objects."""
-from typing import Callable
+from typing import Callable, Iterable
 
 import click
 
@@ -25,13 +25,21 @@ def create(fname: str, ext: str | None) -> MneType:
 
 def create_auto(fname: str) -> MneType:
     """Automatically infer object type from fname and construct it."""
-    for ext, mne_type_creator in registered_types.items():
+    maybe_ext = _match_ext(fname, registered_types)
+    if maybe_ext is None:
+        return Unsupported(fname)
+    mne_type_creator = registered_types[maybe_ext]
+    try:
+        return mne_type_creator(fname)
+    except Exception as exc:
+        raise click.FileError(fname, hint=str(exc))
+
+
+def _match_ext(fname: str, extensions: Iterable[str]) -> str | None:
+    for ext in extensions:
         if fname.endswith(ext):
-            try:
-                return mne_type_creator(fname)
-            except Exception as exc:
-                raise click.FileError(fname, hint=str(exc))
-    return Unsupported(fname)
+            return ext
+    return None
 
 
 def create_by_ext(fname: str, ext: str) -> MneType:
