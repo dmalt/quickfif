@@ -25,10 +25,10 @@ def create(fname: str, ext: str | None) -> MneType:
 
 def create_auto(fname: str) -> MneType:
     """Automatically infer object type from fname and construct it."""
-    maybe_ext = _match_ext(fname, registered_types)
-    if maybe_ext is None:
+    ext = _match_ext(fname, registered_types)
+    if ext is None:
         return Unsupported(fname)
-    mne_type_creator = registered_types[maybe_ext]
+    mne_type_creator = registered_types[ext]
     try:
         return mne_type_creator(fname)
     except Exception as exc:
@@ -36,6 +36,7 @@ def create_auto(fname: str) -> MneType:
 
 
 def _match_ext(fname: str, extensions: Iterable[str]) -> str | None:
+    """Greedily match `fname` extension against the provided `extensions`."""
     for ext in extensions:
         if fname.endswith(ext):
             return ext
