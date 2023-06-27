@@ -57,8 +57,8 @@ def empty_file(tmp_path_factory) -> str:
 
 
 @pytest.fixture(scope="session")
-def empty_raw_fif(tmp_path_factory) -> str:
-    """Empty file fixture."""
+def bad_raw_fif(tmp_path_factory) -> str:
+    """Bad _raw.fif file fixture."""
     empty_fpath = tmp_path_factory.mktemp("data") / "tmp_raw.fif"
     empty_fpath.touch(exist_ok=True)
     return str(empty_fpath)
@@ -72,8 +72,11 @@ def test_cli_succeeds_on_empty_file_with_unsupported_ext(
     assert not cli_result.exit_code
 
 
-def test_cli_fails_gracefully_on_broken_file(empty_raw_fif: str, cli_runner: CliRunner) -> None:
+@pytest.mark.parametrize("opt", [[], ["--ext", "raw.fif"]])
+def test_cli_fails_gracefully_on_bad_raw_fif(
+    bad_raw_fif: str, cli: CliRunner, opt: list[str]
+) -> None:
     """Malformated files should not crash with traceback."""
-    cli_result = cli_runner.invoke(main.main, [empty_raw_fif])
+    cli_result = cli.invoke(main.main, opt + [bad_raw_fif])
     assert cli_result.exit_code == 1
     assert isinstance(cli_result.exception, SystemExit)  # temination with sys.exit() call
