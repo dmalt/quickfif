@@ -28,11 +28,7 @@ def create_auto(fname: str) -> MneType:
     ext = _match_ext(fname, registered_types)
     if ext is None:
         return Unsupported(fname)
-    mne_type_creator = registered_types[ext]
-    try:
-        return mne_type_creator(fname)
-    except Exception as exc:
-        raise click.FileError(fname, hint=str(exc))
+    return create_by_ext(fname, ext)
 
 
 def _match_ext(fname: str, extensions: Iterable[str]) -> str | None:
@@ -46,4 +42,7 @@ def _match_ext(fname: str, extensions: Iterable[str]) -> str | None:
 def create_by_ext(fname: str, ext: str) -> MneType:
     """Get object type by filename extension and construct it."""
     mne_type_creator = registered_types.get(ext, Unsupported)
-    return mne_type_creator(fname)
+    try:
+        return mne_type_creator(fname)
+    except Exception as exc:
+        raise click.FileError(fname, hint=str(exc))
