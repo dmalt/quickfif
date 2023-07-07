@@ -1,25 +1,33 @@
-from dataclasses import asdict, dataclass, field
+"""Plugin handling `mne.preprocessing.ICA`."""
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Final
 
-import mne  # type: ignore
+from mne.preprocessing import ICA, read_ica
 
-from .. import factory
+from mne_cli_tools.types import Ext, Ftype
+
+EXTENSIONS: Final = (Ext("_ica.fif"), Ext("-ica.fif"))
+FTYPE_ALIAS: Final = Ftype("ica")
 
 
 @dataclass
-class IcaFif:
-    fname: str
-    ica: mne.preprocessing.ICA = field(init=False)
+class IcaFif(object):
+    """MneType implementation for `mne.preprocessing.ICA`."""
 
-    def __post_init__(self):
-        self.ica = mne.preprocessing.read_ica(self.fname, verbose="ERROR")
+    fpath: Path
+    ica: ICA
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """ICA object summary."""
         return str(self.ica)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Path | ICA]:
+        """Convert to namespace dictionary."""
         return asdict(self)
 
 
-def initialize(extensions: list[str]) -> None:
-    for ext in extensions:
-        factory.register(ext, IcaFif)
+def read(fpath: Path) -> IcaFif:
+    """Read ICA solution."""
+    ica = read_ica(str(fpath), verbose="ERROR")  # noqa: WPS601
+    return IcaFif(fpath, ica)

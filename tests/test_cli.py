@@ -1,61 +1,61 @@
 """Tests mimicking interaction with the CLI from a terminal."""
-import json
+from pathlib import Path
+from typing import Callable
 
 import pytest
 from click.testing import CliRunner
 
 from mne_cli_tools import main
+from mne_cli_tools.config import EXTENSIONS, ExitCode
 
 
-def test_cli_fails_wo_args(cli: CliRunner) -> None:
+def test_fails_wo_args(cli: CliRunner) -> None:
     """CLI must fail when executed without any arguments."""
-    assert cli.invoke(main.main).exit_code == 2
+    assert cli.invoke(main.main).exit_code == ExitCode.bad_fname_arg
 
 
-def test_cli_fails_for_nonexistent_fname(cli: CliRunner) -> None:
+@pytest.mark.parametrize(
+    "nonexist_fname", ["tmp.empty", "a.txt", "long name with spaces.longext"]
+)  # type: ignore[misc]
+def test_fails_on_nonexistent_file(nonexist_fname: str, cli: CliRunner) -> None:
     """CLI must fail when supplied a nonexistent filename."""
+    err_msg = "Error: Invalid value for 'FPATH': File '{0}' does not exist.".format(nonexist_fname)
+
     with cli.isolated_filesystem():
-        nonexistent_fname = "i_dont_exist.fif"
-        cli_result = cli.invoke(main.main, [nonexistent_fname])
+        cli_result = cli.invoke(main.main, [nonexist_fname])
 
-        assert cli_result.exit_code == 2
-        err_template = "Error: Invalid value for 'FNAME': Path '{0}' does not exist."
-        assert err_template.format(nonexistent_fname) in cli_result.output
+    assert cli_result.exit_code == ExitCode.bad_fname_arg
+    assert err_msg in cli_result.output
 
 
-def test_cli_succeeds_with_show_config_option(cli: CliRunner) -> None:
-    """--show-config option must work without fname argument."""
-    cli_result = cli.invoke(main.main, ["--show-config"])
-    assert cli_result.exit_code == 0
+@pytest.fixture(
+    params=["tmp.empty", "a.txt", "long name with spaces.longext"],
+)  # type: ignore[misc]
+def unsupported_fname(request, empty_file_factory) -> str:
+    """Fname for existing file with unsupported extension."""
+    return str(empty_file_factory(request.param))
 
 
-class BadConfigurationFormatError(Exception):
-    """When CLI configuration format is messed up."""
+def test_succeeds_on_existing_unknown_file(unsupported_fname: str, cli: CliRunner) -> None:
+    """Unknown extensions shouldn't cause error: we just print a message to stdout."""
+    cli_result = cli.invoke(main.main, [unsupported_fname])
+
+    assert cli_result.exit_code == ExitCode.ok
+    assert "unsupported" in cli_result.output.lower()
 
 
-def test_show_config_shows_vaild_json(cli: CliRunner) -> None:
-    """--show-config option must work without fname argument."""
-    cli_result = cli.invoke(main.main, ["--show-config"])
-    assert cli_result.exit_code == 0
-    try:
-        json.loads(cli_result.output)
-    except json.JSONDecodeError:
-        raise BadConfigurationFormatError("Printed config is not a valid JSON!")
+@pytest.fixture(params=[f"tmp{ext}" for ext in EXTENSIONS])  # type: ignore[misc]
+def bad_supported_file(request, empty_file_factory: "Callable[[str], Path]") -> str:
+    """File with supported extension but unreadable contents."""
+    return str(empty_file_factory(request.param))
 
 
-@pytest.mark.parametrize("empty_file", [".empty"], indirect=True)
-def test_cli_succeeds_on_empty_file_with_unsupported_ext(empty_file: str, cli: CliRunner) -> None:
-    """Empty file should be."""
-    cli_result = cli.invoke(main.main, [empty_file])
-    assert not cli_result.exit_code
-
-
-@pytest.mark.parametrize("opt", [[], ["--ext", "raw.fif"]])
-@pytest.mark.parametrize("empty_file", ["_raw.fif"], indirect=True)
-def test_cli_fails_gracefully_on_bad_raw_fif(
-    empty_file: str, cli: CliRunner, opt: list[str]
+def test_fails_gracefully_when_object_read_fails_on_inferred_ftype(
+    bad_supported_file: str, cli: CliRunner
 ) -> None:
-    """Malformated files should not crash with traceback."""
-    cli_result = cli.invoke(main.main, opt + [empty_file])
-    assert cli_result.exit_code == 1
-    assert isinstance(cli_result.exception, SystemExit)  # temination with sys.exit() call
+    """Malformated files should not cause ugly crash (with traceback and so on)."""
+    cli_result = cli.invoke(main.main, [bad_supported_file])
+
+    assert cli_result.exit_code == ExitCode.broken_file
+    # exception handled and cli teminated with sys.exit() call
+    assert isinstance(cli_result.exception, SystemExit)

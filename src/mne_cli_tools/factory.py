@@ -1,48 +1,51 @@
 """Manage creation of MNE objects."""
-from typing import Callable, Iterable
+from pathlib import Path
+from typing import Iterable
 
 import click
 
-from mne_cli_tools.mne_types.base import MneType, Unsupported
-
-registered_types: dict[str, Callable[[str], MneType]] = {}
-
-
-def register(ext: str, constructor: Callable[[str], MneType]) -> None:
-    """Register constructor for a specified extension."""
-    registered_types[ext] = constructor
+from mne_cli_tools.config import ExitCode, ext2ftype
+from mne_cli_tools.mne_types.base import Unsupported
+from mne_cli_tools.types import Ext, Ftype, MneType, TypeConstructors
 
 
-def unregister(ext: str) -> None:
-    """Unregister extension."""
-    registered_types.pop(ext, None)
+def create(fpath: Path, ftype: Ftype | None, type_constructors: TypeConstructors) -> MneType:
+    """Create an instance of MNE object. If ext is not provided, match it from fpath."""
+    return create_by_ftype(fpath, ftype, type_constructors) if ftype else create_auto(fpath, type_constructors)
 
 
-def create(fname: str, ext: str | None) -> MneType:
-    """Create an instance of MNE object. If ext is not provided, infer it."""
-    return create_by_ext(fname, ext) if ext else create_auto(fname)
-
-
-def create_auto(fname: str) -> MneType:
-    """Automatically infer object type from fname and construct it."""
-    ext = _match_ext(fname, registered_types)
+def create_auto(fpath: Path, type_constructors: TypeConstructors) -> MneType:
+    """Automatically infer object type from fpath and construct it."""
+    ext = match_ext(str(fpath), ext2ftype)
     if ext is None:
-        return Unsupported(fname)
-    return create_by_ext(fname, ext)
+        return Unsupported(fpath)  # pyright: ignore
+    return create_by_ftype(fpath, ext2ftype[ext], type_constructors)
 
 
-def _match_ext(fname: str, extensions: Iterable[str]) -> str | None:
-    """Greedily match `fname` extension against the provided `extensions`."""
+def create_by_ftype(fpath: Path, ftype: Ftype, constructors: TypeConstructors) -> MneType:
+    """Get object type by filename extension and construct it."""
+    constructor = constructors.get(ftype, Unsupported)
+    try:
+        return constructor(fpath)
+    except Exception as exc:
+        click_exc = click.FileError(str(fpath), hint=str(exc))
+        click_exc.exit_code = ExitCode.broken_file
+        raise click_exc
+
+
+def match_ext(fname: str, extensions: Iterable[Ext]) -> Ext | None:
+    """
+    Match first `fname` extension against the provided `extensions`.
+
+    Examples
+    --------
+    >>> print(match_ext("rec_raw.fif", ["_raw.fif"]))
+    _raw.fif
+    >>> print(match_ext("rec.txt", ["_raw.fif"]))
+    None
+
+    """
     for ext in extensions:
         if fname.endswith(ext):
             return ext
     return None
-
-
-def create_by_ext(fname: str, ext: str) -> MneType:
-    """Get object type by filename extension and construct it."""
-    mne_type_creator = registered_types.get(ext, Unsupported)
-    try:
-        return mne_type_creator(fname)
-    except Exception as exc:
-        raise click.FileError(fname, hint=str(exc))

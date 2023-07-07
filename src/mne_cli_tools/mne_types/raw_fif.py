@@ -1,15 +1,43 @@
-"""Plugin handling mne.io.RawFif."""
-from dataclasses import asdict, dataclass, field
+"""Plugin handling `mne.io.RawFif`."""
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Final
 
-import mne  # type: ignore
+from mne.io import Raw, read_raw_fif
 
-from mne_cli_tools import factory
 from mne_cli_tools.mne_types.annotations import get_annots_pandas_summary
+from mne_cli_tools.types import Ext, Ftype
+
+EXTENSIONS: Final = tuple(
+    Ext(ext)
+    for ext in (
+        "_raw.fif",
+        "_raw.fif.gz",
+        "-raw.fif",
+        "-raw.fif.gz",
+        "_raw_sss.fif",
+        "_raw_sss.fif.gz",
+        "-raw_sss.fif",
+        "-raw_sss.fif.gz",
+        "_raw_tsss.fif",
+        "_raw_tsss.fif.gz",
+        "-raw_tsss.fif",
+        "-raw_tsss.fif.gz",
+        "_meg.fif",
+        "_meg.fif.gz",
+        "-meg.fif",
+        "_eeg.fif",
+        "-eeg.fif",
+        "_eeg.fif.gz",
+        "_ieeg.fif",
+        "_ieeg.fif.gz",
+        "-ieeg.fif",
+    )
+)
+FTYPE_ALIAS: Final = Ftype("raw")
 
 
-def get_raw_summary(raw: mne.io.Raw) -> str:
+def get_raw_summary(raw: Raw) -> str:
     """Get Raw object text summary."""
     duration_sec = raw.times[-1]
     n_samp = len(raw.times)
@@ -20,14 +48,10 @@ def get_raw_summary(raw: mne.io.Raw) -> str:
 
 @dataclass
 class RawFif(object):
-    """MneType implementation for mne.io.Raw object."""
+    """MneType implementation for `mne.io.Raw` object."""
 
-    fname: str
-    raw: mne.io.Raw = field(init=False)
-
-    def __post_init__(self):
-        """Read raw object."""
-        self.raw = mne.io.read_raw_fif(self.fname, verbose="ERROR")  # noqa: WPS601
+    fpath: Path
+    raw: Raw
 
     def __str__(self) -> str:
         """Raw object summary."""
@@ -44,15 +68,15 @@ class RawFif(object):
         """Copy raw file in a split-safe manner."""
         dst_path = Path(dst)
         if dst_path.is_dir():
-            dst_path = dst_path / Path(self.fname).name
+            dst_path = dst_path / self.fpath.name
         self.raw.save(dst_path, overwrite=True)
 
-    def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary."""
+    def to_dict(self) -> dict[str, str | Raw]:
+        """Convert to namespace dictionary."""
         return asdict(self)
 
 
-def initialize(extensions: Iterable[str]) -> None:
-    """Register supported extensions."""
-    for ext in extensions:
-        factory.register(ext, RawFif)
+def read(fpath: Path) -> RawFif:
+    """Read raw object."""
+    raw = read_raw_fif(fpath, verbose="ERROR")  # noqa: WPS601
+    return RawFif(fpath, raw)

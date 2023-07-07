@@ -1,25 +1,33 @@
-from dataclasses import asdict, dataclass, field
+"""Plugin handling `mne.Epochs`."""
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Final
 
-import mne  # type: ignore
+from mne.epochs import EpochsFIF, read_epochs
 
-from .. import factory
+from mne_cli_tools.types import Ext, Ftype
+
+EXTENSIONS: Final = (Ext("-epo.fif"), Ext("_epo.fif"))
+FTYPE_ALIAS: Final = Ftype("epochs")
 
 
 @dataclass
-class EpochsFif:
-    fname: str
-    epochs: mne.Epochs = field(init=False)
+class EpochsFif(object):
+    """MneType implementation for `mne.Epochs`."""
 
-    def __post_init__(self):
-        self.epochs = mne.read_epochs(self.fname, verbose="ERROR")  # pyright: ignore
+    fpath: Path
+    epochs: EpochsFIF
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Provide `mne.Epochs` object summary."""
         return str(self.epochs.info)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Path | EpochsFIF]:
+        """Convert to namespace dictionary."""
         return asdict(self)
 
 
-def initialize(extensions: list[str]) -> None:
-    for ext in extensions:
-        factory.register(ext, EpochsFif)
+def read(fpath: Path) -> EpochsFif:  # pyright: ignore
+    """Read epochs."""
+    ep = read_epochs(str(fpath), verbose="ERROR")  # noqa: WPS601
+    return EpochsFif(fpath, ep)

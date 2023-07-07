@@ -1,36 +1,36 @@
 """Plugin handling mne.Annotations."""
-from dataclasses import asdict, dataclass, field
-from typing import Any, Iterable
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Final
 
-import mne  # type: ignore
 import pandas as pd
+from mne import Annotations, read_annotations
 
-from mne_cli_tools import factory
+from mne_cli_tools.types import Ext, Ftype
 
 pd.set_option("display.float_format", lambda xx: "{0:.2f}".format(xx))
+
+EXTENSIONS: Final = (Ext("_annot.fif"), Ext("-annot.fif"))
+FTYPE_ALIAS: Final = Ftype("annots")
 
 
 @dataclass
 class AnnotsFif(object):
     """MneType implementation for mne.Annotations."""
 
-    fname: str
-    annots: mne.Annotations = field(init=False)
-
-    def __post_init__(self) -> None:
-        """Read the annotations."""
-        self.annots = mne.read_annotations(self.fname)  # noqa: WPS601
+    fpath: Path
+    annots: Annotations
 
     def __str__(self) -> str:
         """Annotations string representation."""
         return str(get_annots_pandas_summary(self.annots))
 
-    def to_dict(self) -> dict[str, Any]:
-        """Convert object to dictionary."""
+    def to_dict(self) -> dict[str, Path | Annotations]:
+        """Convert to namespace dictionary."""
         return asdict(self)
 
 
-def get_annots_pandas_summary(annots: mne.Annotations) -> pd.DataFrame:
+def get_annots_pandas_summary(annots: Annotations) -> pd.DataFrame:
     """Get annotations summary in pandas DataFrame format."""
     df = annots.to_data_frame()
     df_groups = df.groupby("description").duration.describe()
@@ -42,7 +42,7 @@ def get_annots_pandas_summary(annots: mne.Annotations) -> pd.DataFrame:
     return joint_df
 
 
-def initialize(extensions: Iterable[str]) -> None:
-    """Register extenstions for the plugin."""
-    for ext in extensions:
-        factory.register(ext, AnnotsFif)
+def read(fpath: Path) -> AnnotsFif:
+    """Read the annotations."""
+    annots = read_annotations(str(fpath))  # noqa: WPS601 (shadowed class attr)
+    return AnnotsFif(fpath, annots)
