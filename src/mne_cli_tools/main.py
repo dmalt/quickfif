@@ -2,28 +2,20 @@
 import shutil
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Concatenate, NoReturn, ParamSpec, Protocol, TypeVar
+from typing import Any, Callable, Concatenate, ParamSpec, TypeVar
 
 import click
 import matplotlib
-from returns.curry import curry
 from returns.io import IO, impure
 from returns.maybe import Maybe
 
-from mne_cli_tools.config import ExitCode, create, ext2ftype
-from mne_cli_tools.files import UnsupportedFtypeError
+from mne_cli_tools.config import create, ext2ftype
 from mne_cli_tools.ipython import embed_ipython
 from mne_cli_tools.types import Ftype, MneType, ReadableFpath
+from mne_cli_tools.click import ClickContext, raise_click_file_error
 
 P = ParamSpec("P")
 T = TypeVar("T")
-
-
-class ClickContext(Protocol):
-    """Refined part of `click.Context` that we actually use."""
-
-    invoked_subcommand: bool
-    obj: IO[MneType]  # noqa: WPS110 (wrong variable name)
 
 
 def pass_obj(  # type: ignore[misc]
@@ -42,22 +34,12 @@ def pass_obj(  # type: ignore[misc]
 ftype_help = "Manually specify file type instead of guessing it from extension"
 
 
-@curry
-def _raise_click_file_error(fpath: Path, exc: Exception) -> NoReturn:
-    click_exc = click.FileError(str(fpath), hint=str(exc))
-    if isinstance(exc, UnsupportedFtypeError):
-        click_exc.exit_code = ExitCode.unsupported_file
-    else:
-        click_exc.exit_code = ExitCode.broken_file
-    raise click_exc
-
-
 def _create_mne_obj(fpath: Path, ftype: str | None) -> IO[MneType]:
     maybe_ft = Maybe.from_optional(ftype).map(Ftype)
     # Hackish. Ftype() theoretically can fail for bad ftype string but never should
     # because click.Choice is aligned with Ftype enum Enum-based choice
     # type should appear in click 8.2.0, see https://github.com/pallets/click/pull/2210
-    return create(fpath, maybe_ft).alt(_raise_click_file_error(fpath)).unwrap()  # pyright: ignore
+    return create(fpath, maybe_ft).alt(raise_click_file_error(fpath)).unwrap()  # pyright: ignore
 
 
 @click.group(invoke_without_command=True, epilog=str(ext2ftype))
