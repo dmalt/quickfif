@@ -9,10 +9,10 @@ import matplotlib
 from returns.io import IO, impure
 from returns.maybe import Maybe
 
+from mne_cli_tools.click import ClickContext, raise_click_file_error
 from mne_cli_tools.config import create, ext2ftype
 from mne_cli_tools.ipython import embed_ipython
 from mne_cli_tools.types import Ftype, MneType, ReadableFpath
-from mne_cli_tools.click import ClickContext, raise_click_file_error
 
 P = ParamSpec("P")
 T = TypeVar("T")
