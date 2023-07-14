@@ -4,11 +4,12 @@ from pathlib import Path
 from typing import Final
 
 from mne.epochs import EpochsFIF, read_epochs
+from returns.io import impure_safe
 
-from mne_cli_tools.types import Ext, Ftype
+from mne_cli_tools.types import Ftype
 
-EXTENSIONS: Final = (Ext("-epo.fif"), Ext("_epo.fif"))
-FTYPE_ALIAS: Final = Ftype("epochs")
+EXTENSIONS: Final = ("-epo.fif", "_epo.fif")
+FTYPE_ALIAS: Final = Ftype.epochs
 
 
 @dataclass
@@ -27,6 +28,7 @@ class EpochsFif(object):
         return asdict(self)
 
 
+@impure_safe
 def read(fpath: Path) -> EpochsFif:  # pyright: ignore
     """Read epochs."""
     ep = read_epochs(str(fpath), verbose="ERROR")  # noqa: WPS601

@@ -4,37 +4,35 @@ from pathlib import Path
 from typing import Final
 
 from mne.io import Raw, read_raw_fif
+from returns.io import impure_safe
 
-from mne_cli_tools.mne_types.annotations import get_annots_pandas_summary
-from mne_cli_tools.types import Ext, Ftype
+from mne_cli_tools.mne_types.annotations import get_annots_summary
+from mne_cli_tools.types import Ftype
 
-EXTENSIONS: Final = tuple(
-    Ext(ext)
-    for ext in (
-        "_raw.fif",
-        "_raw.fif.gz",
-        "-raw.fif",
-        "-raw.fif.gz",
-        "_raw_sss.fif",
-        "_raw_sss.fif.gz",
-        "-raw_sss.fif",
-        "-raw_sss.fif.gz",
-        "_raw_tsss.fif",
-        "_raw_tsss.fif.gz",
-        "-raw_tsss.fif",
-        "-raw_tsss.fif.gz",
-        "_meg.fif",
-        "_meg.fif.gz",
-        "-meg.fif",
-        "_eeg.fif",
-        "-eeg.fif",
-        "_eeg.fif.gz",
-        "_ieeg.fif",
-        "_ieeg.fif.gz",
-        "-ieeg.fif",
-    )
+EXTENSIONS: Final = (
+    "_raw.fif",
+    "_raw.fif.gz",
+    "-raw.fif",
+    "-raw.fif.gz",
+    "_raw_sss.fif",
+    "_raw_sss.fif.gz",
+    "-raw_sss.fif",
+    "-raw_sss.fif.gz",
+    "_raw_tsss.fif",
+    "_raw_tsss.fif.gz",
+    "-raw_tsss.fif",
+    "-raw_tsss.fif.gz",
+    "_meg.fif",
+    "_meg.fif.gz",
+    "-meg.fif",
+    "_eeg.fif",
+    "-eeg.fif",
+    "_eeg.fif.gz",
+    "_ieeg.fif",
+    "_ieeg.fif.gz",
+    "-ieeg.fif",
 )
-FTYPE_ALIAS: Final = Ftype("raw")
+FTYPE_ALIAS: Final = Ftype.raw
 
 
 def get_raw_summary(raw: Raw) -> str:
@@ -59,7 +57,7 @@ class RawFif(object):
         if self.raw.annotations:
             res.append("Annotated segments statistics")
             res.append("-----------------------------")
-            res.append(str(get_annots_pandas_summary(self.raw.annotations)))
+            res.append(get_annots_summary(self.raw.annotations))
         else:
             res.append("No annotated segments")
         return "\n".join(res)
@@ -76,6 +74,7 @@ class RawFif(object):
         return asdict(self)
 
 
+@impure_safe
 def read(fpath: Path) -> RawFif:
     """Read raw object."""
     raw = read_raw_fif(fpath, verbose="ERROR")  # noqa: WPS601

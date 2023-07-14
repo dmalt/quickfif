@@ -1,10 +1,31 @@
-"""Custom types."""
+"""Custom project-level types."""
+from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable, NewType, Protocol
+from typing import Any, NewType, Protocol, TypeAlias
 
-Ext = NewType("Ext", str)
-Ftype = NewType("Ftype", str)
+
+class Ftype(StrEnum):
+    """
+    Supported file types.
+
+    We use string values of this enum as click.Choice variants for the ftype
+    option. They appear as a part of CLI help message.
+
+    """
+
+    ica = "ica"
+    raw = "raw"
+    annots = "annots"
+    epochs = "epochs"
+
+    @classmethod
+    def get_values(cls) -> list[str]:
+        """Get values of the enum."""
+        return [ft.value for ft in cls]
+
+
 ReadableFpath = NewType("ReadableFpath", Path)
+Ext: TypeAlias = "str"
 
 
 class MneType(Protocol):
@@ -15,6 +36,3 @@ class MneType(Protocol):
 
     def to_dict(self) -> dict[str, Any]:  # type: ignore[misc] # allow Any here
         """Convert object to dictionary."""
-
-
-TypeConstructors = dict[Ftype, Callable[[Path], MneType]]
