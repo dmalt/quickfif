@@ -6,7 +6,7 @@ import pytest
 from click.testing import CliRunner
 
 from mne_cli_tools import main
-from mne_cli_tools.config import EXTENSIONS, ExitCode
+from mne_cli_tools.config import EXTENSIONS, ExitCode, ext2ftype
 
 
 def test_fails_wo_args(cli: CliRunner) -> None:
@@ -36,17 +36,29 @@ def test_succeeds_on_existing_unknown_file(unsupported_fname: str, cli: CliRunne
     assert cli_result.exit_code == ExitCode.unsupported_file
 
 
-@pytest.fixture(params=[f"tmp{ext}" for ext in EXTENSIONS])
-def bad_supported_file(request, empty_file_factory: "Callable[[str], Path]") -> str:
-    """File with supported extension but unreadable contents."""
-    return str(empty_file_factory(request.param))
+@pytest.fixture(params=EXTENSIONS)
+def empty_file_w_ext(request, empty_file_factory: "Callable[[str], Path]") -> tuple[str, str]:
+    """Fname for file with supported extension but unreadable contents + its extension."""
+    ext = request.param
+    return str(empty_file_factory(f"tmp{ext}")), ext
 
 
-def test_fails_gracefully_when_object_read_fails_on_inferred_ftype(
-    bad_supported_file: str, cli: CliRunner
+@pytest.fixture
+def empty_file_w_ftype(empty_file_w_ext):
+    """Fname for file with supported extension but unreadable contents + its ftype."""
+    fname, ext = empty_file_w_ext
+    return fname, ext2ftype[ext]
+
+
+@pytest.mark.parametrize("provide_ftype", [True, False])
+def test_fails_gracefully_when_object_read_fails(
+    empty_file_w_ftype: tuple[str, str], cli: CliRunner, provide_ftype: bool
 ) -> None:
     """Malformated files should not cause ugly crash (with traceback and so on)."""
-    cli_result = cli.invoke(main.main, [bad_supported_file])
+    fname, ftype = empty_file_w_ftype
+    args = ["--ftype", ftype, fname] if provide_ftype else [fname]
+
+    cli_result = cli.invoke(main.main, args)
 
     assert cli_result.exit_code == ExitCode.broken_file
     # exception handled and cli teminated with sys.exit() call
