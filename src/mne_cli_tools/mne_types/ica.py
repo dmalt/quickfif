@@ -4,11 +4,12 @@ from pathlib import Path
 from typing import Final
 
 from mne.preprocessing import ICA, read_ica
+from returns.io import impure_safe
 
-from mne_cli_tools.types import Ext, Ftype
+from mne_cli_tools.types import Ftype
 
-EXTENSIONS: Final = (Ext("_ica.fif"), Ext("-ica.fif"))
-FTYPE_ALIAS: Final = Ftype("ica")
+EXTENSIONS: Final = ("_ica.fif", "-ica.fif")
+FTYPE_ALIAS: Final = Ftype.ica
 
 
 @dataclass
@@ -27,6 +28,7 @@ class IcaFif(object):
         return asdict(self)
 
 
+@impure_safe
 def read(fpath: Path) -> IcaFif:
     """Read ICA solution."""
     ica = read_ica(str(fpath), verbose="ERROR")  # noqa: WPS601

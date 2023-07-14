@@ -5,13 +5,12 @@ from typing import Final
 
 import pandas as pd
 from mne import Annotations, read_annotations
+from returns.io import impure_safe
 
-from mne_cli_tools.types import Ext, Ftype
+from mne_cli_tools.types import Ftype
 
-pd.set_option("display.float_format", lambda xx: "{0:.2f}".format(xx))
-
-EXTENSIONS: Final = (Ext("_annot.fif"), Ext("-annot.fif"))
-FTYPE_ALIAS: Final = Ftype("annots")
+EXTENSIONS: Final = ("_annot.fif", "-annot.fif")
+FTYPE_ALIAS: Final = Ftype.annots
 
 
 @dataclass
@@ -23,15 +22,15 @@ class AnnotsFif(object):
 
     def __str__(self) -> str:
         """Annotations string representation."""
-        return str(get_annots_pandas_summary(self.annots))
+        return get_annots_summary(self.annots)
 
     def to_dict(self) -> dict[str, Path | Annotations]:
         """Convert to namespace dictionary."""
         return asdict(self)
 
 
-def get_annots_pandas_summary(annots: Annotations) -> pd.DataFrame:
-    """Get annotations summary in pandas DataFrame format."""
+def get_annots_summary(annots: Annotations) -> str:
+    """Get annotations summary."""
     df = annots.to_data_frame()
     df_groups = df.groupby("description").duration.describe()
     total_series = df.duration.describe()
@@ -39,9 +38,10 @@ def get_annots_pandas_summary(annots: Annotations) -> pd.DataFrame:
     total_df = pd.DataFrame(total_series).T
     joint_df = pd.concat([df_groups, total_df])
     joint_df["count"] = joint_df["count"].astype(int)
-    return joint_df
+    return joint_df.to_string(float_format=lambda x: "{0:.2f}".format(x))
 
 
+@impure_safe
 def read(fpath: Path) -> AnnotsFif:
     """Read the annotations."""
     annots = read_annotations(str(fpath))  # noqa: WPS601 (shadowed class attr)

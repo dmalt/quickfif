@@ -2,17 +2,19 @@
 from typing import Any
 
 import IPython
+from returns.io import impure
 from traitlets.config.loader import Config
 
 
-def embed_ipython(namespace: dict[str, Any]) -> None:
+@impure
+def embed_ipython(ns: dict[str, Any]) -> None:  # type: ignore[misc]
     """Embed IPython console with populated namespace."""
-    config = Config()
-    config.InteractiveShell.banner2 = _gen_ipython_header(namespace)  # pyright: ignore
-    IPython.start_ipython(argv=[], user_ns=namespace, config=config)
+    cfg = Config()  # type: ignore[no-untyped-call]
+    cfg.InteractiveShell.banner2 = _gen_ipython_header(ns)  # pyright: ignore
+    IPython.start_ipython(argv=[], user_ns=ns, config=cfg)  # type: ignore[no-untyped-call]
 
 
-def _gen_ipython_header(namespace: dict[str, Any]) -> str:
+def _gen_ipython_header(namespace: dict[str, Any]) -> str:  # type: ignore[misc]
     header = "Populated variables"
     underline = "-" * len(header)
     banner = [header, underline]
