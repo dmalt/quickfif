@@ -12,7 +12,7 @@ def cli():
     return CliRunner()
 
 
-@pytest.fixture(scope="session")  # type: ignore[misc]
+@pytest.fixture(scope="session")
 def empty_file_factory(tmp_path_factory) -> Callable[[str], Path]:
     """Empty file factory. Parametrization by base name and extension."""
 

@@ -8,8 +8,8 @@ from typing import Callable, Final
 from returns.io import IOResult, IOResultE
 from returns.maybe import Maybe
 
-from mne_cli_tools.mne_types import annotations, epochs, ica, raw_fif
 from mne_cli_tools.files import match_ext
+from mne_cli_tools.mne_types import annotations, epochs, ica, raw_fif
 from mne_cli_tools.types import Ext, Ftype, MneType
 
 MODULES: Final = (annotations, epochs, ica, raw_fif)
