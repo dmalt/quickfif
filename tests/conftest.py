@@ -5,6 +5,9 @@ from typing import Callable
 import pytest
 from click.testing import CliRunner
 
+from mne_cli_tools.config import EXTENSIONS, ext2ftype
+from mne_cli_tools.types import Ftype
+
 
 @pytest.fixture
 def cli():
@@ -22,3 +25,17 @@ def empty_file_factory(tmp_path_factory) -> Callable[[str], Path]:
         return empty_fpath
 
     return factory
+
+
+@pytest.fixture(params=EXTENSIONS)
+def empty_file_w_ext(request, empty_file_factory: Callable[[str], Path]) -> tuple[str, str]:
+    """Fname for file with supported extension but unreadable contents + its extension."""
+    ext = request.param
+    return str(empty_file_factory(f"tmp{ext}")), ext
+
+
+@pytest.fixture
+def empty_file_w_ftype(empty_file_w_ext: tuple[str, str]) -> tuple[str, Ftype]:
+    """Fname for file with supported extension but unreadable contents + its ftype."""
+    fname, ext = empty_file_w_ext
+    return fname, ext2ftype[ext]

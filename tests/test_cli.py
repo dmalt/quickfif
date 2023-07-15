@@ -4,6 +4,7 @@ from typing import Callable
 
 import pytest
 from click.testing import CliRunner
+from returns.io import IOResult
 
 from mne_cli_tools import main
 from mne_cli_tools.config import EXTENSIONS, ExitCode, ext2ftype
@@ -63,3 +64,36 @@ def test_fails_gracefully_when_object_read_fails(
     assert cli_result.exit_code == ExitCode.broken_file
     # exception handled and cli teminated with sys.exit() call
     assert isinstance(cli_result.exception, SystemExit)
+
+
+class FakeMneType(object):
+    def __init__(self, test_str: str):
+        self.test_str = test_str
+
+    def __str__(self) -> str:
+        return self.test_str
+
+    def to_dict(self) -> dict[str, str]:
+        return {"test_str": self.test_str}
+
+
+def fake_create(x, y):
+    return IOResult.from_value(FakeMneType(str(x) + str(y)))
+
+
+@pytest.mark.parametrize("provide_ftype", [True, False])
+def test_preview_succeeds_when_read_ok(
+    empty_file_w_ftype: tuple[str, str],
+    monkeypatch: pytest.MonkeyPatch,
+    cli: CliRunner,
+    provide_ftype: bool,
+) -> None:
+    """."""
+    fname, ftype = empty_file_w_ftype
+    args = ["--ftype", ftype, fname] if provide_ftype else [fname]
+    monkeypatch.setattr(main, "create", fake_create)
+
+    cli_result = cli.invoke(main.main, args)
+
+    assert cli_result.exit_code == ExitCode.ok, cli_result.output
+    assert "test" in cli_result.output
