@@ -1,3 +1,4 @@
+"""Bridge between Click API and the package core."""
 from enum import IntEnum, unique
 from pathlib import Path
 from typing import Mapping
@@ -60,7 +61,24 @@ def read_mne_obj(fpath: Path, ftype: str | None) -> IO[MneType]:
 
 def _parse_ftype(fname: str, e2f: Mapping[Ext, Ftype]) -> Ftype:
     """
-    Match first `fname` extension against the provided `extensions`.
+    Parse Ftype from file name using predefined file extensions.
+
+    Parameters
+    ----------
+    fname
+        File name
+    e2f
+        Mapping from extension to the associated Ftype
+
+    Returns
+    -------
+    Ftype
+        Parsed file type enum
+
+    Raises
+    ------
+    mne_cli_tools.click_bridge.UnsupportedFtypeError
+        If fname doesn't end with one of the extensions provided by e2f
 
     Examples
     --------
