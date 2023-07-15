@@ -1,4 +1,4 @@
-"""Tests mimicking interaction with the CLI from a terminal."""
+"""Test red path for CLI invokation without subcommands (a.k.a. preview)."""
 import pytest
 from click.testing import CliRunner
 
