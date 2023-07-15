@@ -1,10 +1,12 @@
 """Test green path for CLI invokation without subcommands (a.k.a. preview)."""
+from collections import defaultdict
+
 import pytest
 from click.testing import CliRunner
 from returns.io import IOResult
 
-from mne_cli_tools import main
-from mne_cli_tools.config import ExitCode
+from mne_cli_tools import click_bridge, main
+from mne_cli_tools.config import ReaderFunc
 from mne_cli_tools.types import Ftype
 
 
@@ -28,10 +30,11 @@ def fake_create_msg(monkeypatch: pytest.MonkeyPatch) -> str:
     """Patch create() function. Return test string wrapped inside."""
     test_msg = "Hello, Test!"
 
-    def factory(_x, _y):  # pyright: ignore (unused names)
+    def factory(_):
         return IOResult.from_value(FakeMneType(test_msg))
 
-    monkeypatch.setattr(main, "create", factory)
+    patched: dict[Ftype, ReaderFunc] = defaultdict(lambda: factory)
+    monkeypatch.setattr(click_bridge, "ftype_to_read_func", patched)
     return test_msg
 
 
@@ -48,5 +51,5 @@ def test_preview_succeeds_when_read_ok(
 
     cli_result = cli.invoke(main.main, args)
 
-    assert cli_result.exit_code == ExitCode.ok, cli_result.output
+    assert cli_result.exit_code == click_bridge.ExitCode.ok, cli_result.output
     assert fake_create_msg in cli_result.output

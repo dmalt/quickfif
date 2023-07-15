@@ -5,7 +5,7 @@ from typing import Callable
 import pytest
 from click.testing import CliRunner
 
-from mne_cli_tools.config import EXTENSIONS, ext2ftype
+from mne_cli_tools.config import EXTENSIONS, ext_to_ftype
 from mne_cli_tools.types import Ftype
 
 
@@ -38,4 +38,4 @@ def empty_file_w_ext(request, empty_file_factory: Callable[[str], Path]) -> tupl
 def empty_file_w_ftype(empty_file_w_ext: tuple[str, str]) -> tuple[str, Ftype]:
     """Fname for file with supported extension but unreadable contents + its ftype."""
     fname, ext = empty_file_w_ext
-    return fname, ext2ftype[ext]
+    return fname, ext_to_ftype[ext]
