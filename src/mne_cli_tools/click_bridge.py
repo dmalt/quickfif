@@ -29,9 +29,11 @@ class UnsupportedFtypeError(click.FileError):
     """Click error for unknown file extension."""
 
     def __init__(self, fpath: str):
-        hint = (
-            "Can`t determine file type by extension"
-            + " Try specifying the type manually via --ftype option."
+        hint = "\n".join(
+            [
+                "Can`t determine file type by extension.",
+                "Try specifying the type manually via --ftype option.",
+            ]
         )
         super().__init__(fpath, hint=hint)
         self.exit_code = ExitCode.unsupported_file
@@ -87,7 +89,8 @@ def _parse_ftype(fname: str, e2f: Mapping[Ext, Ftype]) -> Ftype:
     >>> _parse_ftype("rec.txt", ext_to_ftype)
     Traceback (most recent call last):
         ...
-    mne_cli_tools.click_bridge.UnsupportedFtypeError: Can`t determine file type...
+    mne_cli_tools.click_bridge.UnsupportedFtypeError: Can`t determine file type by extension.
+    Try specifying the type manually via --ftype option.
 
     """
     for ext, ftype in e2f.items():
