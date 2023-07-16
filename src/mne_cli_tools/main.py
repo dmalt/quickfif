@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any, Callable, Concatenate, ParamSpec, Protocol, TypeVar
 
 import click
-import matplotlib
 from returns.io import IO, impure
 
 from mne_cli_tools.click_bridge import read_mne_obj
@@ -57,7 +56,6 @@ def main(ctx: ClickContext, fpath: ReadableFpath, ftype: str | None) -> None:
 @impure
 def inspect(mne_obj: IO[MneType]) -> None:
     """Inspect file in IPython interactive console."""
-    matplotlib.use("TkAgg")
     mne_obj.bind(lambda x: embed_ipython(x.to_dict()))
 
 
