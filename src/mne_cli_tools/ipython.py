@@ -9,7 +9,12 @@ from traitlets.config.loader import Config
 
 @impure
 def embed_ipython(ns: dict[str, Any]) -> None:  # type: ignore[misc]
-    """Embed IPython console with populated namespace."""
+    """
+    Embed IPython console with populated namespace.
+
+    Before launching IPython, setup header showing the populated variables.
+
+    """
     matplotlib.use("TkAgg")
     cfg = Config()  # type: ignore[no-untyped-call]
     cfg.InteractiveShell.banner2 = _gen_ipython_header(ns)  # pyright: ignore
