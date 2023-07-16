@@ -14,6 +14,11 @@ def embed_ipython(ns: dict[str, Any]) -> None:  # type: ignore[misc]
 
     Before launching IPython, setup header showing the populated variables.
 
+    Notes
+    -----
+    The implementation follows the example from IPython docs:
+    [link](https://ipython.readthedocs.io/en/stable/config/intro.html#running-ipython-from-python)
+
     """
     matplotlib.use("TkAgg")
     cfg = Config()  # type: ignore[no-untyped-call]
