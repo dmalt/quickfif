@@ -9,7 +9,6 @@ import matplotlib
 from returns.io import IO, impure
 
 from mne_cli_tools.click_bridge import read_mne_obj
-from mne_cli_tools.config import ext_to_ftype
 from mne_cli_tools.ipython import embed_ipython
 from mne_cli_tools.types import Ftype, MneType, ReadableFpath
 
@@ -40,7 +39,7 @@ def pass_obj(  # type: ignore[misc]
 ftype_help = "Manually specify file type instead of guessing it from extension"
 
 
-@click.group(invoke_without_command=True, epilog=str(ext_to_ftype))
+@click.group(invoke_without_command=True)
 @click.argument("fpath", type=click.Path(exists=True, dir_okay=False, path_type=Path))
 @click.option("-t", "--ftype", type=click.Choice(Ftype.get_values()), help=ftype_help)
 @click.pass_context
