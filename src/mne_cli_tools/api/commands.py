@@ -5,11 +5,11 @@ from typing import Mapping
 import click
 from returns.curry import partial
 from returns.functions import raise_exception
-from returns.io import IO
+from returns.io import IO, IOResult
 from returns.pipeline import flow
-from returns.pointfree import alt
+from returns.pointfree import alt, bind
 
-from mne_cli_tools.api.errors import BrokenFileError, UnsupportedFtypeError
+from mne_cli_tools.api.errors import BrokenFileError, UnsupportedFtypeError, WriteFailedError
 from mne_cli_tools.config import Ftype, copy, ext_to_ftype, ftype_to_read_func
 from mne_cli_tools.ipython import embed_ipython
 from mne_cli_tools.types import Ext, MneType
@@ -45,7 +45,13 @@ def safe_copy(mne_obj: IO[MneType], dst: Path) -> IO[None]:
     Handles raw.fif problem with splits when copying.
 
     """
-    return mne_obj.bind(partial(copy, dst=dst))
+    to_click_error = partial(WriteFailedError, str(dst))
+    return flow(
+        IOResult.from_io(mne_obj),
+        bind(partial(copy, dst=dst)),
+        alt(to_click_error),
+        alt(raise_exception),
+    ).unwrap()
 
 
 def _parse_ftype(fname: str, e2f: Mapping[Ext, Ftype]) -> Ftype:

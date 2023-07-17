@@ -5,7 +5,7 @@ from functools import singledispatch
 from pathlib import Path
 from typing import Callable
 
-from returns.io import IOResultE, impure
+from returns.io import IOResultE, impure_safe
 
 from mne_cli_tools.mne_types import annotations, epochs, ica, raw_fif
 from mne_cli_tools.types import Ext, MneType
@@ -67,7 +67,7 @@ for ft, exts in ftype2ext.items():
 
 
 @singledispatch
-@impure
+@impure_safe
 def copy(mne_obj: MneType, dst: Path) -> None:
     """Copy mne object."""
     shutil.copy2(mne_obj.fpath, dst)

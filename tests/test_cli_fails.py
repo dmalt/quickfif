@@ -1,4 +1,6 @@
 """Test red path for CLI invokation without subcommands (a.k.a. preview)."""
+from pathlib import Path
+
 import pytest
 from click.testing import CliRunner
 
@@ -46,3 +48,35 @@ def test_fails_gracefully_on_broken_file(
 
     assert cli_result.exit_code == ExitCode.broken_file
     assert isinstance(cli_result.exception, SystemExit)
+
+
+@pytest.fixture(params=[0o444, 0o555])
+def nonexistent_dst_in_readonly_dir(request: pytest.FixtureRequest, tmp_path: Path) -> Path:
+    """Non-existent file path inside readonly dir."""
+    nonwritable_dir = tmp_path / "subdir"
+    nonwritable_dir.mkdir()
+    dst = nonwritable_dir / "dst_path.nonexistent"
+    mode = request.param
+    nonwritable_dir.chmod(mode=mode)
+    return dst
+
+
+def test_copy_fails_gracefully_on_nonexist_dst_in_readonly_dir(
+    fake_read: tuple[str, Ftype],
+    cli: CliRunner,
+    pass_ft: bool,
+    nonexistent_dst_in_readonly_dir: Path,
+) -> None:
+    """
+    Test unwritable case when dst file is inside unwritable dir and doesn't exits.
+
+    Click Path writable checker doesn't handle this case.
+
+    """
+    fname, ftype = fake_read
+    dst = str(nonexistent_dst_in_readonly_dir)
+    args = ["--ftype", ftype, fname, "copy", dst] if pass_ft else [fname, "copy", dst]
+
+    cli_result = cli.invoke(main.main, args)
+    assert isinstance(cli_result.exception, SystemExit), cli_result.output
+    assert cli_result.exit_code == ExitCode.write_failed

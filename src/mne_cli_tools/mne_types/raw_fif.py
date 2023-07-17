@@ -3,7 +3,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from mne.io import Raw, read_raw_fif
-from returns.io import impure_safe, impure
+from returns.io import impure_safe
 
 from mne_cli_tools.mne_types.annotations import get_annots_summary
 
@@ -47,7 +47,7 @@ def read(fpath: Path) -> RawFif:
     return RawFif(fpath, raw)
 
 
-@impure
+@impure_safe
 def copy(mne_obj: RawFif, dst: Path) -> None:
     """Copy raw file in a split-safe manner."""
     if dst.is_dir():

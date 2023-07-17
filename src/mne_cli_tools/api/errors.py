@@ -13,6 +13,7 @@ class ExitCode(IntEnum):
     bad_fname_arg = 2
     broken_file = 3
     unsupported_file = 4
+    write_failed = 5
 
 
 class UnsupportedFtypeError(click.FileError):
@@ -35,3 +36,11 @@ class BrokenFileError(click.FileError):
     def __init__(self, fpath: str, exc: Exception):
         super().__init__(fpath, hint=str(exc))
         self.exit_code = ExitCode.broken_file
+
+
+class WriteFailedError(click.FileError):
+    """Click error for failed write."""
+
+    def __init__(self, fpath: str, exc: Exception):
+        super().__init__(fpath, hint=str(exc))
+        self.exit_code = ExitCode.write_failed
