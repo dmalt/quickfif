@@ -1,4 +1,4 @@
-"""Configure MneType objects creation for supported file types."""
+"""Configure dispatch on MneType objects for supported file types."""
 from enum import StrEnum
 from pathlib import Path
 from typing import Callable
