@@ -18,69 +18,70 @@ class FakeMneType(object):
     """Fake `MneType` implementation."""
 
     fpath: Path
+    ftype: Ftype
 
-    def __init__(self, test_str: str):
-        self.test_str = test_str
-        self.fpath = Path(test_str)
+    def __init__(self, test_path: Path, test_ft: Ftype):
+        self.fpath = test_path
+        self.ftype = test_ft
 
     def __str__(self) -> str:
         """Get object summary."""
-        return self.test_str
+        return "ftype: {0}, fpath: {1}".format(self.ftype, self.fpath)
 
-    def to_dict(self) -> dict[str, str]:
+    def to_dict(self) -> dict[str, Path | Ftype]:
         """Convert do dictionary."""
-        return {"test_str": self.test_str}
+        return {"fpath": self.fpath, "ftype": self.ftype}
 
 
 @pytest.fixture
-def fake_create_msg(monkeypatch: pytest.MonkeyPatch) -> str:
-    """Patch create() function. Return test string wrapped inside."""
-    test_msg = "Hello, Test!"
+def fake_read(
+    monkeypatch: pytest.MonkeyPatch, empty_file_w_ftype: tuple[str, Ftype]
+) -> tuple[str, Ftype]:
+    """Patch mne object reading.
+
+    Pathch the mapping from file type to reader function so each function
+    returns fake mne type with wrapped fpath and ftype.
+
+    """
+    fpath, ftype = empty_file_w_ftype
 
     def factory(_):
-        return IOResult.from_value(FakeMneType(test_msg))
+        return IOResult.from_value(FakeMneType(Path(fpath), ftype))
 
     patched: dict[Ftype, ReaderFunc] = defaultdict(lambda: factory)
     monkeypatch.setattr(commands, "ftype_to_read_func", patched)
-    return test_msg
+    return fpath, ftype
 
 
-@pytest.mark.parametrize("provide_ftype", [True, False])
+@pytest.mark.parametrize("pass_ft", [True, False])
 def test_preview_succeeds_when_read_ok(
-    empty_file_w_ftype: tuple[str, Ftype],
-    fake_create_msg: str,
-    cli: CliRunner,
-    provide_ftype: bool,
+    fake_read: tuple[str, Ftype], cli: CliRunner, pass_ft: bool
 ) -> None:
     """Fake file reading and test the rest of preview logic."""
-    fname, ftype = empty_file_w_ftype
-    args = ["--ftype", ftype, fname] if provide_ftype else [fname]
+    fname, ftype = fake_read
+    args = ["--ftype", ftype, fname] if pass_ft else [fname]
 
     cli_result = cli.invoke(main.main, args)
 
     assert cli_result.exit_code == ExitCode.ok, cli_result.output
-    assert fake_create_msg in cli_result.output
+    assert fname in cli_result.output
 
 
 @pytest.fixture
-def mocked_start_ipython(mocker: MockerFixture):
+def start_ipython_mock(mocker: MockerFixture):
     """Mock starting ipython embedded console session."""
     return mocker.patch("IPython.start_ipython", autospec=True)
 
 
-@pytest.mark.parametrize("provide_ftype", [True, False])
-@pytest.mark.usefixtures("fake_create_msg")
-def test_inspect_succeeds(
-    empty_file_w_ftype: tuple[str, Ftype],
-    cli: CliRunner,
-    provide_ftype: bool,
-    mocked_start_ipython: Mock,
+@pytest.mark.parametrize("pass_ft", [True, False])
+def test_inspect_succeeds_on_green_path(
+    fake_read: tuple[str, Ftype], cli: CliRunner, pass_ft: bool, start_ipython_mock: Mock
 ) -> None:
     """Test inspect succeeds if object creation went fine."""
-    fname, ftype = empty_file_w_ftype
-    args = ["--ftype", ftype, fname, "inspect"] if provide_ftype else [fname, "inspect"]
+    fname, ftype = fake_read
+    args = ["--ftype", ftype, fname, "inspect"] if pass_ft else [fname, "inspect"]
 
     cli_result = cli.invoke(main.main, args)
 
     assert cli_result.exit_code == ExitCode.ok, cli_result.output
-    mocked_start_ipython.assert_called_once()
+    start_ipython_mock.assert_called_once()
