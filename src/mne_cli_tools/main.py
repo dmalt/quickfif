@@ -4,11 +4,15 @@ from pathlib import Path
 from typing import Any, Callable, Concatenate, ParamSpec, Protocol, TypeVar
 
 import click
-from returns.curry import partial
 from returns.io import IO, impure
 
-from mne_cli_tools.click_bridge import get_ftype_choices, read_mne_obj, show_preview, open_in_console
-from mne_cli_tools.config import copy as mne_copy
+from mne_cli_tools.api.commands import (
+    get_ftype_choices,
+    open_in_console,
+    read_mne_obj,
+    safe_copy,
+    show_preview,
+)
 from mne_cli_tools.types import MneType, ReadableFpath
 
 P = ParamSpec("P")
@@ -65,7 +69,7 @@ def inspect(mne_obj: IO[MneType]) -> None:
 def copy(mne_obj: IO[MneType], dst: Path) -> None:
     """Safely copy mne file. Existing destination is overwritten.
 
-    Works correctly also with large fif file splits.
+    Works correctly with large fif file splits.
 
     """
-    mne_obj.bind(partial(mne_copy, dst=dst))
+    safe_copy(mne_obj, dst)

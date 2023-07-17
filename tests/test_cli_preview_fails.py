@@ -3,7 +3,7 @@ import pytest
 from click.testing import CliRunner
 
 from mne_cli_tools import main
-from mne_cli_tools.click_bridge import ExitCode
+from mne_cli_tools.api.errors import ExitCode
 from mne_cli_tools.config import Ftype
 
 

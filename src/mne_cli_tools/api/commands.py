@@ -1,5 +1,4 @@
 """Bridge between Click API and the package core."""
-from enum import IntEnum, unique
 from pathlib import Path
 from typing import Mapping
 
@@ -10,42 +9,10 @@ from returns.io import IO
 from returns.pipeline import flow
 from returns.pointfree import alt
 
-from mne_cli_tools.config import Ftype, ext_to_ftype, ftype_to_read_func
+from mne_cli_tools.api.errors import BrokenFileError, UnsupportedFtypeError
+from mne_cli_tools.config import Ftype, copy, ext_to_ftype, ftype_to_read_func
 from mne_cli_tools.ipython import embed_ipython
 from mne_cli_tools.types import Ext, MneType
-
-
-@unique
-class ExitCode(IntEnum):
-    """Exit codes for the CLI."""
-
-    ok = 0
-    aborted = 1
-    bad_fname_arg = 2
-    broken_file = 3
-    unsupported_file = 4
-
-
-class UnsupportedFtypeError(click.FileError):
-    """Click error for unknown file extension."""
-
-    def __init__(self, fpath: str):
-        hint = "\n".join(
-            [
-                "Can`t determine file type by extension.",
-                "Try specifying the type manually via --ftype option.",
-            ]
-        )
-        super().__init__(fpath, hint=hint)
-        self.exit_code = ExitCode.unsupported_file
-
-
-class BrokenFileError(click.FileError):
-    """Click error for broken file."""
-
-    def __init__(self, fpath: str, exc: Exception):
-        super().__init__(fpath, hint=str(exc))
-        self.exit_code = ExitCode.broken_file
 
 
 def get_ftype_choices() -> list[str]:
@@ -77,6 +44,15 @@ def open_in_console(mne_obj: IO[MneType]) -> IO[None]:
     return mne_obj.bind(lambda x: embed_ipython(x.to_dict()))
 
 
+def safe_copy(mne_obj: IO[MneType], dst: Path) -> IO[None]:
+    """Safely copy object.
+
+    Handles raw.fif problem with splits when copying.
+
+    """
+    return mne_obj.bind(partial(copy, dst=dst))
+
+
 def _parse_ftype(fname: str, e2f: Mapping[Ext, Ftype]) -> Ftype:
     """
     Parse Ftype from file name using predefined file extensions.
@@ -95,7 +71,7 @@ def _parse_ftype(fname: str, e2f: Mapping[Ext, Ftype]) -> Ftype:
 
     Raises
     ------
-    mne_cli_tools.click_bridge.UnsupportedFtypeError
+    mne_cli_tools.api.UnsupportedFtypeError
         If fname doesn't end with one of the extensions provided by e2f
 
     Examples
@@ -105,7 +81,7 @@ def _parse_ftype(fname: str, e2f: Mapping[Ext, Ftype]) -> Ftype:
     >>> _parse_ftype("rec.txt", ext_to_ftype)
     Traceback (most recent call last):
         ...
-    mne_cli_tools.click_bridge.UnsupportedFtypeError: Can`t determine file type by extension.
+    mne_cli_tools.api.errors.UnsupportedFtypeError: Can`t determine file type by extension.
     Try specifying the type manually via --ftype option.
 
     """
