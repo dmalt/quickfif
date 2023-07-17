@@ -7,9 +7,9 @@ from typing import Any, Callable, Concatenate, ParamSpec, Protocol, TypeVar
 import click
 from returns.io import IO, impure
 
-from mne_cli_tools.click_bridge import read_mne_obj
+from mne_cli_tools.click_bridge import get_ftype_choices, read_mne_obj
 from mne_cli_tools.ipython import embed_ipython
-from mne_cli_tools.types import Ftype, MneType, ReadableFpath
+from mne_cli_tools.types import MneType, ReadableFpath
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -40,7 +40,7 @@ ftype_help = "Manually specify file type instead of guessing it from extension"
 
 @click.group(invoke_without_command=True)
 @click.argument("fpath", type=click.Path(exists=True, dir_okay=False, path_type=Path))
-@click.option("-t", "--ftype", type=click.Choice(Ftype.get_values()), help=ftype_help)
+@click.option("-t", "--ftype", type=click.Choice(get_ftype_choices()), help=ftype_help)
 @click.pass_context
 def main(ctx: ClickContext, fpath: ReadableFpath, ftype: str | None) -> None:
     """When invoked without subcommands: show file preview."""

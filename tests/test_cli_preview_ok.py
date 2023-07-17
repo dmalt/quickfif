@@ -6,8 +6,7 @@ from click.testing import CliRunner
 from returns.io import IOResult
 
 from mne_cli_tools import click_bridge, main
-from mne_cli_tools.config import ReaderFunc
-from mne_cli_tools.types import Ftype
+from mne_cli_tools.config import Ftype, ReaderFunc
 
 
 class FakeMneType(object):

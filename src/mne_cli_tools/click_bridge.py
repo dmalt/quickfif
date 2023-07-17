@@ -10,8 +10,8 @@ from returns.io import IO
 from returns.pipeline import flow
 from returns.pointfree import alt
 
-from mne_cli_tools.config import ext_to_ftype, ftype_to_read_func
-from mne_cli_tools.types import Ext, Ftype, MneType
+from mne_cli_tools.config import Ftype, ext_to_ftype, ftype_to_read_func
+from mne_cli_tools.types import Ext, MneType
 
 
 @unique
@@ -45,6 +45,11 @@ class BrokenFileError(click.FileError):
     def __init__(self, fpath: str, exc: Exception):
         super().__init__(fpath, hint=str(exc))
         self.exit_code = ExitCode.broken_file
+
+
+def get_ftype_choices() -> list[str]:
+    """Get supported file types."""
+    return [str(ft) for ft in Ftype]
 
 
 def read_mne_obj(fpath: Path, ftype: str | None) -> IO[MneType]:

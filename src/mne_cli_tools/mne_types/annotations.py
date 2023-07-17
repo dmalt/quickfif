@@ -1,16 +1,10 @@
 """Plugin handling mne.Annotations."""
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Final
 
 import pandas as pd
 from mne import Annotations, read_annotations
 from returns.io import impure_safe
-
-from mne_cli_tools.types import Ftype
-
-EXTENSIONS: Final = ("_annot.fif", "-annot.fif")
-FTYPE_ALIAS: Final = Ftype.annots
 
 
 @dataclass

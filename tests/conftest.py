@@ -5,8 +5,9 @@ from typing import Callable
 import pytest
 from click.testing import CliRunner
 
-from mne_cli_tools.config import EXTENSIONS, ext_to_ftype
-from mne_cli_tools.types import Ftype
+from mne_cli_tools.config import Ftype, ext_to_ftype
+
+EXTENSIONS = list(ext_to_ftype)
 
 
 @pytest.fixture

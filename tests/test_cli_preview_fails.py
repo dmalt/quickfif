@@ -4,7 +4,7 @@ from click.testing import CliRunner
 
 from mne_cli_tools import main
 from mne_cli_tools.click_bridge import ExitCode
-from mne_cli_tools.types import Ftype
+from mne_cli_tools.config import Ftype
 
 
 def test_fails_wo_args(cli: CliRunner) -> None:

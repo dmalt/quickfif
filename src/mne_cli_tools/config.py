@@ -1,25 +1,66 @@
 """Configure MneType objects creation for supported file types."""
-import operator as op
-from functools import reduce
+from enum import StrEnum
 from pathlib import Path
-from typing import Callable, Final
+from typing import Callable
 
 from returns.io import IOResultE
 
 from mne_cli_tools.mne_types import annotations, epochs, ica, raw_fif
-from mne_cli_tools.types import Ext, Ftype, MneType
+from mne_cli_tools.types import Ext, MneType
 
-MODULES: Final = (annotations, epochs, ica, raw_fif)
-EXTENSIONS: Final[tuple[Ext, ...]] = reduce(op.add, (m.EXTENSIONS for m in MODULES))
+
+class Ftype(StrEnum):
+    """
+    Supported file types.
+
+    We use string values of this enum as click.Choice variants for the ftype
+    option. They appear as a part of CLI help message.
+
+    """
+
+    ica = "ica"
+    raw = "raw"
+    annots = "annots"
+    epochs = "epochs"
 
 
 ReaderFunc = Callable[[Path], IOResultE[MneType]]
-ftype_to_read_func: dict[Ftype, ReaderFunc] = {}
+ftype_to_read_func: dict[Ftype, ReaderFunc] = {
+    Ftype.epochs: epochs.read,
+    Ftype.annots: annotations.read,
+    Ftype.ica: ica.read,
+    Ftype.raw: raw_fif.read,
+}
+ftype2ext: dict[Ftype, tuple[Ext, ...]] = {
+    Ftype.epochs: ("-epo.fif", "_epo.fif"),
+    Ftype.annots: ("_annot.fif", "-annot.fif"),
+    Ftype.ica: ("_ica.fif", "-ica.fif"),
+    Ftype.raw: (
+        "_raw.fif",
+        "_raw.fif.gz",
+        "-raw.fif",
+        "-raw.fif.gz",
+        "_raw_sss.fif",
+        "_raw_sss.fif.gz",
+        "-raw_sss.fif",
+        "-raw_sss.fif.gz",
+        "_raw_tsss.fif",
+        "_raw_tsss.fif.gz",
+        "-raw_tsss.fif",
+        "-raw_tsss.fif.gz",
+        "_meg.fif",
+        "_meg.fif.gz",
+        "-meg.fif",
+        "_eeg.fif",
+        "-eeg.fif",
+        "_eeg.fif.gz",
+        "_ieeg.fif",
+        "_ieeg.fif.gz",
+        "-ieeg.fif",
+    ),
+}
+
+
 ext_to_ftype: dict[Ext, Ftype] = {}
-ftype2ext: dict[Ftype, tuple[Ext, ...]] = {}
-
-
-for mdl in MODULES:
-    ftype_to_read_func[mdl.FTYPE_ALIAS] = mdl.read
-    ftype2ext[mdl.FTYPE_ALIAS] = mdl.EXTENSIONS
-    ext_to_ftype.update(**{ext: mdl.FTYPE_ALIAS for ext in mdl.EXTENSIONS})
+for ft, exts in ftype2ext.items():
+    ext_to_ftype.update(**{ext: ft for ext in exts})

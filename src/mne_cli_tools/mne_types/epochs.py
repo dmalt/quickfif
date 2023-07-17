@@ -1,15 +1,9 @@
 """Plugin handling `mne.Epochs`."""
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Final
 
 from mne.epochs import EpochsFIF, read_epochs
 from returns.io import impure_safe
-
-from mne_cli_tools.types import Ftype
-
-EXTENSIONS: Final = ("-epo.fif", "_epo.fif")
-FTYPE_ALIAS: Final = Ftype.epochs
 
 
 @dataclass
