@@ -1,5 +1,6 @@
 """Test red path for CLI invokation without subcommands (a.k.a. preview)."""
 from pathlib import Path
+from typing import Callable
 
 import pytest
 from click.testing import CliRunner
@@ -24,7 +25,9 @@ def test_fails_on_nonexistent_file(nonexist_fname: str, cli: CliRunner) -> None:
 
 
 @pytest.fixture(params=["tmp.empty", "a.txt", "long name with spaces.longext"])
-def unsupported_fname(request, empty_file_factory) -> str:
+def unsupported_fname(
+    request: pytest.FixtureRequest, empty_file_factory: Callable[[str], Path]
+) -> str:
     """Fname for existing file with unsupported extension."""
     return str(empty_file_factory(request.param))
 
