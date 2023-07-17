@@ -1,4 +1,4 @@
-"""Test green path for CLI invokation without subcommands (a.k.a. preview)."""
+"""Test green path for CLI."""
 from unittest.mock import Mock
 
 import pytest

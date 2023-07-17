@@ -1,4 +1,4 @@
-"""Test red path for CLI invokation without subcommands (a.k.a. preview)."""
+"""Test red path for CLI."""
 from pathlib import Path
 from typing import Callable
 
