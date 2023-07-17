@@ -53,3 +53,20 @@ def test_preview_succeeds_when_read_ok(
 
     assert cli_result.exit_code == click_bridge.ExitCode.ok, cli_result.output
     assert fake_create_msg in cli_result.output
+
+
+@pytest.mark.parametrize("provide_ftype", [True, False])
+def test_inspect_succeeds(
+    empty_file_w_ftype: tuple[str, Ftype],
+    fake_create_msg: str,
+    cli: CliRunner,
+    provide_ftype: bool,
+) -> None:
+    """Test inspect succeeds if object creation went fine."""
+    fname, ftype = empty_file_w_ftype
+    args = ["--ftype", ftype, fname, "inspect"] if provide_ftype else [fname, "inspect"]
+
+    cli_result = cli.invoke(main.main, args)
+
+    assert cli_result.exit_code == click_bridge.ExitCode.ok, cli_result.output
+    assert fake_create_msg in cli_result.output
