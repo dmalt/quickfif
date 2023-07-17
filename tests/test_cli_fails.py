@@ -11,7 +11,7 @@ from mne_cli_tools.config import Ftype
 
 def test_fails_wo_args(cli: CliRunner) -> None:
     """CLI must fail when executed without any arguments."""
-    assert cli.invoke(main.main).exit_code == ExitCode.bad_fname_arg
+    assert cli.invoke(main.main).exit_code == ExitCode.bad_click_path
 
 
 @pytest.mark.parametrize("nonexist_fname", ["tmp.empty", "a.txt", "long name with spaces.longext"])
@@ -20,7 +20,7 @@ def test_fails_on_nonexistent_file(nonexist_fname: str, cli: CliRunner) -> None:
     with cli.isolated_filesystem():
         cli_result = cli.invoke(main.main, [nonexist_fname])
 
-    assert cli_result.exit_code == ExitCode.bad_fname_arg
+    assert cli_result.exit_code == ExitCode.bad_click_path
 
 
 @pytest.fixture(params=["tmp.empty", "a.txt", "long name with spaces.longext"])

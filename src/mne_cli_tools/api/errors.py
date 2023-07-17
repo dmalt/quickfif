@@ -10,7 +10,7 @@ class ExitCode(IntEnum):
 
     ok = 0
     aborted = 1
-    bad_fname_arg = 2
+    bad_click_path = 2
     broken_file = 3
     unsupported_file = 4
     write_failed = 5
