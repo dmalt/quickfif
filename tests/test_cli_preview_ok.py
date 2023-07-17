@@ -1,9 +1,11 @@
 """Test green path for CLI invokation without subcommands (a.k.a. preview)."""
 from collections import defaultdict
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 from click.testing import CliRunner
+from pytest_mock import MockerFixture
 from returns.io import IOResult
 
 from mne_cli_tools import main
@@ -60,12 +62,19 @@ def test_preview_succeeds_when_read_ok(
     assert fake_create_msg in cli_result.output
 
 
+@pytest.fixture
+def mocked_start_ipython(mocker: MockerFixture):
+    """Mock starting ipython embedded console session."""
+    return mocker.patch("IPython.start_ipython", autospec=True)
+
+
 @pytest.mark.parametrize("provide_ftype", [True, False])
+@pytest.mark.usefixtures("fake_create_msg")
 def test_inspect_succeeds(
     empty_file_w_ftype: tuple[str, Ftype],
-    fake_create_msg: str,
     cli: CliRunner,
     provide_ftype: bool,
+    mocked_start_ipython: Mock,
 ) -> None:
     """Test inspect succeeds if object creation went fine."""
     fname, ftype = empty_file_w_ftype
@@ -74,4 +83,4 @@ def test_inspect_succeeds(
     cli_result = cli.invoke(main.main, args)
 
     assert cli_result.exit_code == ExitCode.ok, cli_result.output
-    assert fake_create_msg in cli_result.output
+    mocked_start_ipython.assert_called_once()
