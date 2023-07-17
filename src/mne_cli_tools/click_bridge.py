@@ -11,6 +11,7 @@ from returns.pipeline import flow
 from returns.pointfree import alt
 
 from mne_cli_tools.config import Ftype, ext_to_ftype, ftype_to_read_func
+from mne_cli_tools.ipython import embed_ipython
 from mne_cli_tools.types import Ext, MneType
 
 
@@ -64,6 +65,16 @@ def read_mne_obj(fpath: Path, ftype: str | None) -> IO[MneType]:
     read_func = ftype_to_read_func[ftype]
     to_click_error = partial(BrokenFileError, str(fpath))
     return flow(fpath, read_func, alt(to_click_error), alt(raise_exception)).unwrap()
+
+
+def show_preview(mne_obj: IO[MneType]) -> IO[None]:
+    """Print preview string."""
+    return mne_obj.map(click.echo)
+
+
+def open_in_console(mne_obj: IO[MneType]) -> IO[None]:
+    """Open object for inspection in embedded ipython console."""
+    return mne_obj.bind(lambda x: embed_ipython(x.to_dict()))
 
 
 def _parse_ftype(fname: str, e2f: Mapping[Ext, Ftype]) -> Ftype:

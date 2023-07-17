@@ -7,9 +7,8 @@ import click
 from returns.curry import partial
 from returns.io import IO, impure
 
-from mne_cli_tools.click_bridge import get_ftype_choices, read_mne_obj
+from mne_cli_tools.click_bridge import get_ftype_choices, read_mne_obj, show_preview, open_in_console
 from mne_cli_tools.config import copy as mne_copy
-from mne_cli_tools.ipython import embed_ipython
 from mne_cli_tools.types import MneType, ReadableFpath
 
 P = ParamSpec("P")
@@ -49,7 +48,7 @@ def main(ctx: ClickContext, fpath: ReadableFpath, ftype: str | None) -> None:
     if ctx.invoked_subcommand:
         ctx.obj = mne_obj  # pass the object to subcommands via context
     else:
-        mne_obj.map(click.echo)
+        show_preview(mne_obj)
 
 
 @main.command()
@@ -57,7 +56,7 @@ def main(ctx: ClickContext, fpath: ReadableFpath, ftype: str | None) -> None:
 @impure
 def inspect(mne_obj: IO[MneType]) -> None:
     """Inspect file in IPython interactive console."""
-    mne_obj.bind(lambda x: embed_ipython(x.to_dict()))
+    open_in_console(mne_obj)
 
 
 @main.command()
