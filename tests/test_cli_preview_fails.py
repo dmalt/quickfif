@@ -35,13 +35,12 @@ def test_fails_gracefully_on_existing_unknown_file(unsupported_fname: str, cli: 
     assert isinstance(cli_result.exception, SystemExit)
 
 
-@pytest.mark.parametrize("provide_ftype", [True, False])
 def test_fails_gracefully_on_broken_file(
-    empty_file_w_ftype: tuple[str, Ftype], cli: CliRunner, provide_ftype: bool
+    empty_file_w_ftype: tuple[str, Ftype], cli: CliRunner, pass_ft: bool
 ) -> None:
     """Malformated file errors should be handled."""
     fname, ftype = empty_file_w_ftype
-    args = ["--ftype", ftype, fname] if provide_ftype else [fname]
+    args = ["--ftype", ftype, fname] if pass_ft else [fname]
 
     cli_result = cli.invoke(main.main, args)
 

@@ -40,3 +40,9 @@ def empty_file_w_ftype(empty_file_w_ext: tuple[str, str]) -> tuple[str, Ftype]:
     """Fname for file with supported extension but unreadable contents + its ftype."""
     fname, ext = empty_file_w_ext
     return fname, ext_to_ftype[ext]
+
+
+@pytest.fixture(params=[True, False])
+def pass_ft(request) -> bool:
+    """Weither to pass ftype explicitly with --ftype."""
+    return request.param

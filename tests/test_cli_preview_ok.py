@@ -39,7 +39,7 @@ def fake_read(
 ) -> tuple[str, Ftype]:
     """Patch mne object reading.
 
-    Pathch the mapping from file type to reader function so each function
+    Patch the mapping from file type to reader function so each function
     returns fake mne type with wrapped fpath and ftype.
 
     """
@@ -53,7 +53,6 @@ def fake_read(
     return fpath, ftype
 
 
-@pytest.mark.parametrize("pass_ft", [True, False])
 def test_preview_succeeds_when_read_ok(
     fake_read: tuple[str, Ftype], cli: CliRunner, pass_ft: bool
 ) -> None:
@@ -68,12 +67,11 @@ def test_preview_succeeds_when_read_ok(
 
 
 @pytest.fixture
-def start_ipython_mock(mocker: MockerFixture):
+def start_ipython_mock(mocker: MockerFixture) -> Mock:
     """Mock starting ipython embedded console session."""
     return mocker.patch("IPython.start_ipython", autospec=True)
 
 
-@pytest.mark.parametrize("pass_ft", [True, False])
 def test_inspect_succeeds_on_green_path(
     fake_read: tuple[str, Ftype], cli: CliRunner, pass_ft: bool, start_ipython_mock: Mock
 ) -> None:
@@ -85,3 +83,23 @@ def test_inspect_succeeds_on_green_path(
 
     assert cli_result.exit_code == ExitCode.ok, cli_result.output
     start_ipython_mock.assert_called_once()
+
+
+@pytest.fixture
+def mock_copy(mocker: MockerFixture) -> Mock:
+    """Mock copy function so it doesn't change the filesystem."""
+    return mocker.patch("mne_cli_tools.api.commands.copy")
+
+
+def test_copy_succeeds_on_green_path(
+    fake_read: tuple[str, Ftype], cli: CliRunner, pass_ft: bool, mock_copy: Mock
+) -> None:
+    """Test inspect succeeds if object creation went fine."""
+    fname, ftype = fake_read
+    dst = f"{fname}.copy"
+    args = ["--ftype", ftype, fname, "copy", dst] if pass_ft else [fname, "copy", dst]
+
+    cli_result = cli.invoke(main.main, args)
+
+    assert cli_result.exit_code == ExitCode.ok, cli_result.output
+    mock_copy.assert_called_once()
