@@ -6,13 +6,8 @@ from typing import Any, Callable, Concatenate, ParamSpec, Protocol, TypeVar
 import click
 from returns.io import IO, impure
 
-from mne_cli_tools.api.commands import (
-    get_ftype_choices,
-    open_in_console,
-    read_mne_obj,
-    safe_copy,
-    show_preview,
-)
+from mne_cli_tools.api.commands import open_in_console, read_mne_obj, safe_copy, show_preview
+from mne_cli_tools.api.docs import ftype_help, get_ftype_choices
 from mne_cli_tools.types import MneType, ReadableFpath
 
 P = ParamSpec("P")
@@ -37,9 +32,6 @@ def pass_obj(  # type: ignore[misc]
         return ctx.invoke(wrapped, ctx.obj, *args, **kwargs)
 
     return wrapper
-
-
-ftype_help = "Manually specify file type instead of guessing it from extension"
 
 
 @click.group(invoke_without_command=True)

@@ -15,11 +15,6 @@ from mne_cli_tools.ipython import embed_ipython
 from mne_cli_tools.types import Ext, MneType
 
 
-def get_ftype_choices() -> list[str]:
-    """Get supported file types."""
-    return [str(ft) for ft in Ftype]
-
-
 def read_mne_obj(fpath: Path, ftype: str | None) -> IO[MneType]:
     """Read mne object. For broken files raise click exception."""
     if ftype is None:
