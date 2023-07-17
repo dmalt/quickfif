@@ -23,6 +23,10 @@ def embed_ipython(ns: dict[str, Any]) -> None:  # type: ignore[misc]
     matplotlib.use("TkAgg")
     cfg = Config()  # type: ignore[no-untyped-call]
     cfg.InteractiveShell.banner2 = _gen_ipython_header(ns)  # pyright: ignore
+    cfg.InteractiveShellApp.exec_lines = [  # pyright: ignore
+        "import numpy as np",
+        "import matplotlib.pyplot as plt",
+    ]
     IPython.start_ipython(argv=[], user_ns=ns, config=cfg)  # type: ignore[no-untyped-call]
 
 
