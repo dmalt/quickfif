@@ -1,9 +1,11 @@
 """Configure dispatch on MneType objects for supported file types."""
+import shutil
 from enum import StrEnum
+from functools import singledispatch
 from pathlib import Path
 from typing import Callable
 
-from returns.io import IOResultE
+from returns.io import IOResultE, impure
 
 from mne_cli_tools.mne_types import annotations, epochs, ica, raw_fif
 from mne_cli_tools.types import Ext, MneType
@@ -59,8 +61,16 @@ ftype2ext: dict[Ftype, tuple[Ext, ...]] = {
         "-ieeg.fif",
     ),
 }
-
-
 ext_to_ftype: dict[Ext, Ftype] = {}
 for ft, exts in ftype2ext.items():
     ext_to_ftype.update(**{ext: ft for ext in exts})
+
+
+@singledispatch
+@impure
+def copy(mne_obj: MneType, dst: Path) -> None:
+    """Copy mne object."""
+    shutil.copy2(mne_obj.fpath, dst)
+
+
+copy.register(raw_fif.copy)

@@ -3,7 +3,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from mne.io import Raw, read_raw_fif
-from returns.io import impure_safe
+from returns.io import impure_safe, impure
 
 from mne_cli_tools.mne_types.annotations import get_annots_summary
 
@@ -35,13 +35,6 @@ class RawFif(object):
             res.append("No annotated segments")
         return "\n".join(res)
 
-    def copy(self, dst: str) -> None:
-        """Copy raw file in a split-safe manner."""
-        dst_path = Path(dst)
-        if dst_path.is_dir():
-            dst_path = dst_path / self.fpath.name
-        self.raw.save(dst_path, overwrite=True)
-
     def to_dict(self) -> dict[str, str | Raw]:
         """Convert to namespace dictionary."""
         return asdict(self)
@@ -52,3 +45,11 @@ def read(fpath: Path) -> RawFif:
     """Read raw object."""
     raw = read_raw_fif(fpath, verbose="ERROR")  # noqa: WPS601
     return RawFif(fpath, raw)
+
+
+@impure
+def copy(mne_obj: RawFif, dst: Path) -> None:
+    """Copy raw file in a split-safe manner."""
+    if dst.is_dir():
+        dst = dst / mne_obj.fpath.name
+    mne_obj.raw.save(dst, overwrite=True)

@@ -2,13 +2,14 @@
 from pathlib import Path
 from typing import Any, NewType, Protocol, TypeAlias
 
-
 ReadableFpath = NewType("ReadableFpath", Path)
 Ext: TypeAlias = "str"
 
 
 class MneType(Protocol):
     """Protocol for defining supported types."""
+
+    fpath: Path
 
     def __str__(self) -> str:  # pyright: ignore
         """Convert object to string."""

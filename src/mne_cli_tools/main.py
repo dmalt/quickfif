@@ -1,13 +1,14 @@
 """CLI entry point."""
-import shutil
 from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, Concatenate, ParamSpec, Protocol, TypeVar
 
 import click
+from returns.curry import partial
 from returns.io import IO, impure
 
 from mne_cli_tools.click_bridge import get_ftype_choices, read_mne_obj
+from mne_cli_tools.config import copy as mne_copy
 from mne_cli_tools.ipython import embed_ipython
 from mne_cli_tools.types import MneType, ReadableFpath
 
@@ -60,15 +61,12 @@ def inspect(mne_obj: IO[MneType]) -> None:
 
 
 @main.command()
-@click.argument("dst", type=click.Path())
+@click.argument("dst", type=click.Path(path_type=Path, dir_okay=True, writable=True))
 @pass_obj
-def copy(mne_obj: IO[MneType], dst: str) -> None:
+def copy(mne_obj: IO[MneType], dst: Path) -> None:
     """Safely copy mne file. Existing destination is overwritten.
 
     Works correctly also with large fif file splits.
 
     """
-    try:
-        mne_obj.copy(dst)
-    except AttributeError:
-        shutil.copy2(mne_obj.fpath, dst)
+    mne_obj.bind(partial(mne_copy, dst=dst))
