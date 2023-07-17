@@ -12,7 +12,8 @@ def embed_ipython(ns: dict[str, Any]) -> None:  # type: ignore[misc]
     """
     Embed IPython console with populated namespace.
 
-    Before launching IPython, setup header showing the populated variables.
+    Before launching IPython, setup header showing the populated variables and
+    import essential libraries.
 
     Notes
     -----
