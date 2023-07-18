@@ -8,7 +8,7 @@ from click.testing import CliRunner
 from returns.io import IOResult
 
 from mne_cli_tools.api import commands
-from mne_cli_tools.config import Ftype, ReaderFunc, ext_to_ftype
+from mne_cli_tools.config import Ftype, ReadFunc, ext_to_ftype
 
 EXTENSIONS = list(ext_to_ftype)
 
@@ -85,6 +85,6 @@ def fake_read(
     def factory(_):
         return IOResult.from_value(FakeMneType(Path(fpath), ftype))
 
-    patched: dict[Ftype, ReaderFunc] = defaultdict(lambda: factory)
+    patched: dict[Ftype, ReadFunc] = defaultdict(lambda: factory)
     monkeypatch.setattr(commands, "ftype_to_read_func", patched)
     return fpath, ftype

@@ -26,8 +26,8 @@ class Ftype(StrEnum):
     epochs = "epochs"
 
 
-ReaderFunc = Callable[[Path], IOResultE[MneType]]
-ftype_to_read_func: dict[Ftype, ReaderFunc] = {
+ReadFunc = Callable[[Path], IOResultE[MneType]]
+ftype_to_read_func: dict[Ftype, ReadFunc] = {
     Ftype.epochs: epochs.read,
     Ftype.annots: annotations.read,
     Ftype.ica: ica.read,
