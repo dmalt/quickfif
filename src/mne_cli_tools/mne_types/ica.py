@@ -1,9 +1,12 @@
 """Plugin handling `mne.preprocessing.ICA`."""
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Final
 
 from mne.preprocessing import ICA, read_ica
 from returns.io import impure_safe
+
+EXTENSIONS: Final[tuple[str, ...]] = ("_ica.fif", "-ica.fif")
 
 
 @dataclass

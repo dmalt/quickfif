@@ -1,10 +1,13 @@
 """Plugin handling mne.Annotations."""
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Final
 
 import pandas as pd
 from mne import Annotations, read_annotations
 from returns.io import impure_safe
+
+EXTENSIONS: Final[tuple[str, ...]] = ("_annot.fif", "-annot.fif")
 
 
 @dataclass

@@ -1,9 +1,12 @@
 """Plugin handling `mne.Epochs`."""
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Final
 
 from mne.epochs import EpochsFIF, read_epochs
 from returns.io import impure_safe
+
+EXTENSIONS: Final[tuple[str, ...]] = ("-epo.fif", "_epo.fif")
 
 
 @dataclass

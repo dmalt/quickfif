@@ -34,32 +34,10 @@ ftype_to_read_func: dict[Ftype, ReaderFunc] = {
     Ftype.raw: raw_fif.read,
 }
 ftype2ext: dict[Ftype, tuple[Ext, ...]] = {
-    Ftype.epochs: ("-epo.fif", "_epo.fif"),
-    Ftype.annots: ("_annot.fif", "-annot.fif"),
-    Ftype.ica: ("_ica.fif", "-ica.fif"),
-    Ftype.raw: (
-        "_raw.fif",
-        "_raw.fif.gz",
-        "-raw.fif",
-        "-raw.fif.gz",
-        "_raw_sss.fif",
-        "_raw_sss.fif.gz",
-        "-raw_sss.fif",
-        "-raw_sss.fif.gz",
-        "_raw_tsss.fif",
-        "_raw_tsss.fif.gz",
-        "-raw_tsss.fif",
-        "-raw_tsss.fif.gz",
-        "_meg.fif",
-        "_meg.fif.gz",
-        "-meg.fif",
-        "_eeg.fif",
-        "-eeg.fif",
-        "_eeg.fif.gz",
-        "_ieeg.fif",
-        "_ieeg.fif.gz",
-        "-ieeg.fif",
-    ),
+    Ftype.epochs: epochs.EXTENSIONS,
+    Ftype.annots: annotations.EXTENSIONS,
+    Ftype.ica: ica.EXTENSIONS,
+    Ftype.raw: raw_fif.EXTENSIONS,
 }
 ext_to_ftype: dict[Ext, Ftype] = {}
 for ft, exts in ftype2ext.items():

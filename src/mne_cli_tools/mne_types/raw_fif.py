@@ -1,11 +1,36 @@
 """Plugin handling `mne.io.RawFif`."""
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Final
 
 from mne.io import Raw, read_raw_fif
 from returns.io import impure_safe
 
 from mne_cli_tools.mne_types.annotations import get_annots_summary
+
+EXTENSIONS: Final[tuple[str, ...]] = (
+    "_raw.fif",
+    "_raw.fif.gz",
+    "-raw.fif",
+    "-raw.fif.gz",
+    "_raw_sss.fif",
+    "_raw_sss.fif.gz",
+    "-raw_sss.fif",
+    "-raw_sss.fif.gz",
+    "_raw_tsss.fif",
+    "_raw_tsss.fif.gz",
+    "-raw_tsss.fif",
+    "-raw_tsss.fif.gz",
+    "_meg.fif",
+    "_meg.fif.gz",
+    "-meg.fif",
+    "_eeg.fif",
+    "-eeg.fif",
+    "_eeg.fif.gz",
+    "_ieeg.fif",
+    "_ieeg.fif.gz",
+    "-ieeg.fif",
+)
 
 
 def get_raw_summary(raw: Raw) -> str:
