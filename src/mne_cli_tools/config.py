@@ -33,14 +33,14 @@ ftype_to_read_func: dict[Ftype, ReaderFunc] = {
     Ftype.ica: ica.read,
     Ftype.raw: raw_fif.read,
 }
-ftype2ext: dict[Ftype, tuple[Ext, ...]] = {
+ftype_to_ext: dict[Ftype, tuple[Ext, ...]] = {
     Ftype.epochs: epochs.EXTENSIONS,
     Ftype.annots: annotations.EXTENSIONS,
     Ftype.ica: ica.EXTENSIONS,
     Ftype.raw: raw_fif.EXTENSIONS,
 }
 ext_to_ftype: dict[Ext, Ftype] = {}
-for ft, exts in ftype2ext.items():
+for ft, exts in ftype_to_ext.items():
     ext_to_ftype.update(**{ext: ft for ext in exts})
 
 
