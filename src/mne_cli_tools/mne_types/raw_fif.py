@@ -8,29 +8,10 @@ from returns.io import impure_safe
 
 from mne_cli_tools.mne_types.annotations import get_annots_summary
 
-EXTENSIONS: Final[tuple[str, ...]] = (
-    "_raw.fif",
-    "_raw.fif.gz",
-    "-raw.fif",
-    "-raw.fif.gz",
-    "_raw_sss.fif",
-    "_raw_sss.fif.gz",
-    "-raw_sss.fif",
-    "-raw_sss.fif.gz",
-    "_raw_tsss.fif",
-    "_raw_tsss.fif.gz",
-    "-raw_tsss.fif",
-    "-raw_tsss.fif.gz",
-    "_meg.fif",
-    "_meg.fif.gz",
-    "-meg.fif",
-    "_eeg.fif",
-    "-eeg.fif",
-    "_eeg.fif.gz",
-    "_ieeg.fif",
-    "_ieeg.fif.gz",
-    "-ieeg.fif",
-)
+_BASE_EXT = ("raw.fif", "raw_sss.fif", "raw_tsss.fif", "_meg.fif", "_eeg.fif", "_ieeg.fif")
+_GZ_EXT = tuple(f"{e}.gz" for e in _BASE_EXT)
+
+EXTENSIONS: Final[tuple[str, ...]] = _BASE_EXT + _GZ_EXT
 
 
 def get_raw_summary(raw: Raw) -> str:
