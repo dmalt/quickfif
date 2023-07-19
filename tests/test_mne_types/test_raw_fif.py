@@ -1,5 +1,6 @@
 """Test raw_fif handling."""
 from pathlib import Path
+from typing import Callable
 
 import mne
 import numpy as np
@@ -34,22 +35,6 @@ def raw_obj(timeseries: tuple[npt.NDArray, float]) -> mne.io.RawArray:
     return mne.io.RawArray(sim_data, mne_info)
 
 
-def create_fake_annots(
-    t_start: float, t_stop: float, n_annots: int = 10, dur_frac: float = 0.5, desc="test"
-) -> mne.Annotations:
-    """Create fake annotations."""
-    onsets = np.linspace(t_start, t_stop, n_annots, endpoint=False)
-    dt = (t_stop - t_start) / n_annots * dur_frac
-    duration, description = [dt] * n_annots, [desc] * n_annots  # noqa: WPS435 (list multiply)
-    return mne.Annotations(onsets, duration=duration, description=description)
-
-
-def add_fake_annots(raw: mne.io.Raw) -> None:
-    """Add fake annotations to `mne.io.Raw` object."""
-    t_start, t_stop = raw.times[0], raw.times[-1]
-    raw.set_annotations(create_fake_annots(t_start, t_stop))
-
-
 @pytest.fixture(params=raw_fif.EXTENSIONS)
 def saved_raw_fif(
     request: pytest.FixtureRequest, tmp_path: Path, raw_obj: mne.io.Raw
@@ -61,6 +46,19 @@ def saved_raw_fif(
     return raw_fif.RawFif(fpath, raw_obj)
 
 
+@pytest.fixture(params=[True, False], ids=["with annots", "without annots"])
+def maybe_annotated_raw_fif(
+    request: pytest.FixtureRequest,
+    raw_obj: mne.io.Raw,
+    create_fake_annots: Callable[[float, float], mne.Annotations],
+) -> raw_fif.RawFif:
+    """`RawFif` wrapper around possibly annotated `mne.io.Raw`."""
+    if request.param:
+        t_start, t_stop = raw_obj.times[0], raw_obj.times[-1]
+        raw_obj.set_annotations(create_fake_annots(t_start, t_stop))
+    return raw_fif.RawFif(fpath=Path("test_path_raw.fif"), raw=raw_obj)
+
+
 def test_read_works_with_specified_extensions(saved_raw_fif: raw_fif.RawFif) -> None:
     """Check if raw objects saved with supported extensions are loaded fine."""
     loaded_raw = unsafe_perform_io(raw_fif.read(saved_raw_fif.fpath).unwrap())
@@ -68,25 +66,22 @@ def test_read_works_with_specified_extensions(saved_raw_fif: raw_fif.RawFif) -> 
     assert_array_almost_equal(saved_raw_fif.raw.get_data(), loaded_raw.raw.get_data())
 
 
-@pytest.mark.parametrize("add_annots", [True, False])
-def test_summary_no_annots(saved_raw_fif: raw_fif.RawFif, add_annots: bool) -> None:
+def test_summary_string_contents(maybe_annotated_raw_fif: raw_fif.RawFif) -> None:
     """
     Test summary for `RawFif`.
 
     Check data dimensions = n_channels x n_samples are present and annotations
-    are reported to be missing.
+    section header depending on annotations presence.
 
     """
-    n_ch = len(saved_raw_fif.raw.ch_names)
-    n_samples = len(saved_raw_fif.raw.times)
-    if add_annots:
-        add_fake_annots(saved_raw_fif.raw)
+    n_ch = len(maybe_annotated_raw_fif.raw.ch_names)
+    n_samples = len(maybe_annotated_raw_fif.raw.times)
 
-    summary = str(saved_raw_fif)
+    summary = str(maybe_annotated_raw_fif)
 
     assert str(n_ch) in summary
     assert str(n_samples) in summary
-    if add_annots:
+    if maybe_annotated_raw_fif.raw.annotations:
         assert raw_fif.ANNOTS_SECTION_HEADER in summary
     else:
         assert raw_fif.NO_ANNOTS_MSG in summary
