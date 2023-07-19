@@ -11,9 +11,11 @@ from returns.unsafe import unsafe_perform_io
 
 from mne_cli_tools.mne_types import raw_fif
 
+FloatArray = npt.NDArray[np.float_]
+
 
 @pytest.fixture
-def timeseries() -> tuple[npt.NDArray, float]:
+def timeseries() -> tuple[FloatArray, float]:
     """Sample timeseries data with sampling frequency."""
     sfreq, f1, f2 = 100, 7, 5
     times = np.linspace(0, 1, int(sfreq), endpoint=False)
@@ -27,7 +29,7 @@ def timeseries() -> tuple[npt.NDArray, float]:
 
 
 @pytest.fixture
-def raw_obj(timeseries: tuple[npt.NDArray, float]) -> mne.io.RawArray:
+def raw_obj(timeseries: tuple[FloatArray, float]) -> mne.io.RawArray:
     """Sample `mne.io.Raw` object."""
     sim_data, sfreq = timeseries
     n_ch = len(sim_data)
