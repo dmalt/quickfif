@@ -50,3 +50,20 @@ def test_read_works_with_specified_extensions(saved_raw_fif: raw_fif.RawFif):
     loaded_raw = unsafe_perform_io(raw_fif.read(saved_raw_fif.fpath).unwrap())
 
     assert_array_almost_equal(saved_raw_fif.raw.get_data(), loaded_raw.raw.get_data())
+
+
+def test_summary_no_annots(saved_raw_fif: raw_fif.RawFif):
+    """
+    Test summary for `RawFif`.
+
+    Check data dimensions = n_channels x n_samples are present and annotations
+    are reported to be missing.
+
+    """
+    n_ch = len(saved_raw_fif.raw.ch_names)
+    n_samples = len(saved_raw_fif.raw.times)
+    summary = str(saved_raw_fif)
+
+    assert str(n_ch) in summary
+    assert str(n_samples) in summary
+    assert "No annotated segments" in summary
