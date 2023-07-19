@@ -14,7 +14,7 @@ _GZ_EXT = tuple(f"{e}.gz" for e in _BASE_EXT)
 EXTENSIONS: Final[tuple[str, ...]] = _BASE_EXT + _GZ_EXT
 
 
-def get_raw_summary(raw: Raw) -> str:
+def _get_raw_summary(raw: Raw) -> str:
     """Get Raw object text summary."""
     duration_sec = raw.times[-1]
     n_samp = len(raw.times)
@@ -32,7 +32,7 @@ class RawFif(object):
 
     def __str__(self) -> str:
         """Raw object summary."""
-        res = [get_raw_summary(self.raw), str(self.raw.info)]
+        res = [_get_raw_summary(self.raw), str(self.raw.info)]
         if self.raw.annotations:
             res.append("Annotated segments statistics")
             res.append("-----------------------------")
