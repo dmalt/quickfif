@@ -12,6 +12,8 @@ _BASE_EXT = ("raw.fif", "raw_sss.fif", "raw_tsss.fif", "_meg.fif", "_eeg.fif", "
 _GZ_EXT = tuple(f"{e}.gz" for e in _BASE_EXT)
 
 EXTENSIONS: Final[tuple[str, ...]] = _BASE_EXT + _GZ_EXT
+ANNOTS_SECTION_HEADER: Final = "Annotated segments statistics"
+NO_ANNOTS_MSG: Final = "No annotated segments"
 
 
 def _get_raw_summary(raw: Raw) -> str:
@@ -34,11 +36,11 @@ class RawFif(object):
         """Raw object summary."""
         res = [_get_raw_summary(self.raw), str(self.raw.info)]
         if self.raw.annotations:
-            res.append("Annotated segments statistics")
-            res.append("-----------------------------")
+            res.append(ANNOTS_SECTION_HEADER)
+            res.append("-" * len(ANNOTS_SECTION_HEADER))
             res.append(get_annots_summary(self.raw.annotations))
         else:
-            res.append("No annotated segments")
+            res.append(NO_ANNOTS_MSG)
         return "\n".join(res)
 
     def to_dict(self) -> dict[str, str | Raw]:
