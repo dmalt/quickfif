@@ -35,18 +35,18 @@ def raw_obj(timeseries: tuple[npt.NDArray, float]) -> mne.io.RawArray:
 
 
 @pytest.fixture(params=raw_fif.EXTENSIONS)
-def saved_raw_fif(request: pytest.FixtureRequest, tmp_path: Path, raw_obj: mne.io.Raw):
-    """Path to saved `Raw` object and the object itself."""
+def saved_raw_fif(
+    request: pytest.FixtureRequest, tmp_path: Path, raw_obj: mne.io.Raw
+) -> raw_fif.RawFif:
+    """`RawFif` object with fpath pointing to to saved wrapped `mne.io.Raw` object."""
     ext = request.param
     fpath = tmp_path / f"test{ext}"
     raw_obj.save(fpath)
-    return fpath, raw_obj
+    return raw_fif.RawFif(fpath, raw_obj)
 
 
-def test_read_works_with_specified_extensions(saved_raw_fif: tuple[Path, mne.io.Raw]):
+def test_read_works_with_specified_extensions(saved_raw_fif: raw_fif.RawFif):
     """Check if raw objects saved with supported extensions are loaded fine."""
-    raw_path, saved_raw = saved_raw_fif
+    loaded_raw = unsafe_perform_io(raw_fif.read(saved_raw_fif.fpath).unwrap())
 
-    loaded_raw = unsafe_perform_io(raw_fif.read(raw_path).unwrap())
-
-    assert_array_almost_equal(saved_raw.get_data(), loaded_raw.raw.get_data())
+    assert_array_almost_equal(saved_raw_fif.raw.get_data(), loaded_raw.raw.get_data())
