@@ -46,9 +46,13 @@ for ft, exts in ftype_to_ext.items():
 
 @singledispatch
 @impure_safe
-def copy(mne_obj: MneType, dst: Path) -> None:
+def copy(mne_obj: MneType, dst: Path, overwrite: bool) -> None:
     """Copy mne object."""
-    shutil.copy2(mne_obj.fpath, dst)
+    if dst.is_dir():
+        dst = dst / mne_obj.fpath
+    if not overwrite and dst.exists():
+        raise ValueError(f"Destination file '{dst}' exists.")
+    shutil.copy(mne_obj.fpath, dst)
 
 
 copy.register(raw_fif.copy)

@@ -57,11 +57,12 @@ def inspect(mne_obj: IO[MneType]) -> None:
 
 @main.command()
 @click.argument("dst", type=click.Path(path_type=Path, dir_okay=True, writable=True))
+@click.option("-o", "--overwrite", type=bool, default=False, help="Overwrite destination file.")
 @pass_obj
-def copy(mne_obj: IO[MneType], dst: Path) -> None:
+def copy(mne_obj: IO[MneType], dst: Path, overwrite: bool) -> None:
     """Safely copy mne file. Existing destination is overwritten.
 
     Works correctly with large fif file splits.
 
     """
-    safe_copy(mne_obj, dst)
+    safe_copy(mne_obj, dst, overwrite)

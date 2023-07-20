@@ -39,7 +39,7 @@ def open_in_console(mne_obj: IO[MneType]) -> IO[None]:
     return mne_obj.bind(lambda x: embed_ipython(x.to_dict()))
 
 
-def safe_copy(mne_obj: IO[MneType], dst: Path) -> IO[None]:
+def safe_copy(mne_obj: IO[MneType], dst: Path, overwrite: bool) -> IO[None]:
     """Safely copy object.
 
     Handles raw.fif problem with splits when copying.
@@ -48,7 +48,7 @@ def safe_copy(mne_obj: IO[MneType], dst: Path) -> IO[None]:
     to_click_error = partial(WriteFailedError, str(dst))
     return flow(
         IOResult.from_io(mne_obj),
-        bind(partial(copy, dst=dst)),
+        bind(partial(copy, dst=dst, overwrite=overwrite)),
         alt(to_click_error),
         alt(raise_exception),
     ).unwrap()

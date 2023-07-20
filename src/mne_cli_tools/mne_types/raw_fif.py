@@ -8,10 +8,14 @@ from returns.io import impure_safe
 
 from mne_cli_tools.mne_types.annotations import get_annots_summary
 
-_BASE_EXT = ("raw.fif", "raw_sss.fif", "raw_tsss.fif", "_meg.fif", "_eeg.fif", "_ieeg.fif")
-_GZ_EXT = tuple(f"{e}.gz" for e in _BASE_EXT)
+_NMG_SFX = ("raw", "raw_sss", "raw_tsss")
+_BIDS_SFX = ("_meg", "_eeg", "_ieeg")
+_EXT = (".fif", ".fif.gz")
 
-EXTENSIONS: Final[tuple[str, ...]] = _BASE_EXT + _GZ_EXT
+NEUROMAG_EXT: Final = tuple(f"{sfx}{ext}" for sfx in _NMG_SFX for ext in _EXT)
+BIDS_EXT: Final = tuple(f"{sfx}{ext}" for sfx in _BIDS_SFX for ext in _EXT)
+
+EXTENSIONS: Final[tuple[str, ...]] = NEUROMAG_EXT + BIDS_EXT
 ANNOTS_SECTION_HEADER: Final = "Annotated segments statistics"
 NO_ANNOTS_MSG: Final = "No annotated segments"
 
@@ -56,8 +60,10 @@ def read(fpath: Path) -> RawFif:
 
 
 @impure_safe
-def copy(mne_obj: RawFif, dst: Path) -> None:
+def copy(mne_obj: RawFif, dst: Path, overwrite: bool) -> None:
     """Copy raw file in a split-safe manner."""
     if dst.is_dir():
         dst = dst / mne_obj.fpath.name
-    mne_obj.raw.save(dst, overwrite=True)
+    split_naming = "bids" if str(dst).endswith(BIDS_EXT) else "neuromag"
+
+    mne_obj.raw.save(dst, overwrite=overwrite, split_naming=split_naming)
