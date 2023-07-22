@@ -19,6 +19,8 @@ class ExitCode(IntEnum):
 class UnsupportedFtypeError(click.FileError):
     """Click error for unknown file extension."""
 
+    exit_code: ExitCode
+
     def __init__(self, fpath: str):
         hint = "\n".join(
             [
