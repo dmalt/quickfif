@@ -14,6 +14,7 @@ class ExitCode(IntEnum):
     broken_file = 3
     unsupported_file = 4
     write_failed = 5
+    embed_failed = 6
 
 
 class UnsupportedFtypeError(click.FileError):
@@ -46,3 +47,11 @@ class WriteFailedError(click.FileError):
     def __init__(self, fpath: str, exc: Exception):
         super().__init__(fpath, hint=str(exc))
         self.exit_code = ExitCode.write_failed
+
+
+class ConsoleEmbedError(click.ClickException):
+    """Error when ipython_embed failed."""
+
+    def __init__(self, exc: Exception):
+        super().__init__(message=str(exc))
+        self.exit_code = ExitCode.embed_failed

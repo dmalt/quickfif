@@ -14,7 +14,12 @@ from returns.pipeline import flow
 from returns.pointfree import alt
 from returns.unsafe import unsafe_perform_io
 
-from mne_cli_tools.api.errors import BrokenFileError, UnsupportedFtypeError, WriteFailedError
+from mne_cli_tools.api.errors import (
+    BrokenFileError,
+    ConsoleEmbedError,
+    UnsupportedFtypeError,
+    WriteFailedError,
+)
 from mne_cli_tools.config import Ftype, copy, ext_to_ftype, ftype_to_read_func
 from mne_cli_tools.ipython import embed_ipython
 from mne_cli_tools.types import Ext, MneType
@@ -38,7 +43,9 @@ def read_mne_obj(fpath: Path, ftype: str | None) -> MneType:
 
 def open_in_console(mne_obj: MneType) -> None:
     """Open object for inspection in embedded ipython console."""
-    return unsafe_perform_io(embed_ipython(mne_obj.to_dict()))
+    return unsafe_perform_io(
+        embed_ipython(mne_obj.to_dict()).alt(ConsoleEmbedError).alt(raise_exception).unwrap()
+    )
 
 
 def safe_copy(mne_obj: MneType, dst: Path, overwrite: bool) -> None:
