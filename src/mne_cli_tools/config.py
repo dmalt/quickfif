@@ -49,7 +49,7 @@ for ft, exts in ftype_to_ext.items():
 def copy(mne_obj: MneType, dst: Path, overwrite: bool) -> None:
     """Copy mne object."""
     if dst.is_dir():
-        dst = dst / mne_obj.fpath
+        dst = dst / mne_obj.fpath.name
     if not overwrite and dst.exists():
         raise ValueError(f"Destination file '{dst}' exists.")
     shutil.copy(mne_obj.fpath, dst)

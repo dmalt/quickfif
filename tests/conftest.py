@@ -8,7 +8,7 @@ from pytest_mock import MockerFixture
 
 
 @pytest.fixture(scope="session")
-def empty_file_factory(tmp_path_factory) -> Callable[[str], Path]:
+def empty_file_factory(tmp_path_factory: pytest.TempPathFactory) -> Callable[[str], Path]:
     """Empty file factory. Parametrization by base name and extension."""
 
     def factory(fname: str) -> Path:

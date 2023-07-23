@@ -53,3 +53,6 @@ def test_copy_calls_api(
 
     assert cli_result.exit_code == ExitCode.ok, cli_result.output
     mock_safe_copy.assert_called_once()
+
+
+# TODO: test destination file is not writable
