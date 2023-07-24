@@ -23,7 +23,7 @@ def test_no_duplicates_in_extensions():
 
 
 @pytest.fixture
-def mne_obj_tmp_path(tmp_path: Path) -> FakeMneType:
+def mne_obj_of_tmp_path(tmp_path: Path) -> FakeMneType:
     """Mne obj wrapping fpath in temporary directory."""
     src_path = tmp_path / "test_path.ext"
     return FakeMneType(src_path, "test_obj")
@@ -37,7 +37,7 @@ def mock_shutil_copy(mocker: MockFixture) -> Mock:
 
 @pytest.mark.parametrize("overwrite", [True, False], ids=OVERWRITE_IDS)
 def test_copy_default_calls_shutil(
-    mock_shutil_copy: Mock, overwrite: bool, mne_obj_tmp_path: MneType
+    mock_shutil_copy: Mock, overwrite: bool, mne_obj_of_tmp_path: MneType
 ) -> None:
     """
     Test default copy implementation green path.
@@ -45,21 +45,21 @@ def test_copy_default_calls_shutil(
     Test when destination doesn't exist and is writable, we just call shutil.copy.
 
     """
-    dst = Path(f"{mne_obj_tmp_path.fpath}.copy")
+    dst = Path(f"{mne_obj_of_tmp_path.fpath}.copy")
 
-    copy(mne_obj_tmp_path, dst, overwrite)
+    copy(mne_obj_of_tmp_path, dst, overwrite)
 
-    mock_shutil_copy.assert_called_once_with(mne_obj_tmp_path.fpath, dst)
+    mock_shutil_copy.assert_called_once_with(mne_obj_of_tmp_path.fpath, dst)
 
 
 def test_default_copy_fails_when_overwrite_false_and_dst_exists(
-    mock_shutil_copy: Mock, mne_obj_tmp_path: MneType
+    mock_shutil_copy: Mock, mne_obj_of_tmp_path: MneType
 ) -> None:
     """Test default implementation of copy fails when we try not permitted overwrite."""
-    dst = Path(f"{mne_obj_tmp_path.fpath}.copy")
+    dst = Path(f"{mne_obj_of_tmp_path.fpath}.copy")
     dst.touch()
 
-    res = copy(mne_obj_tmp_path, dst, overwrite=False)
+    res = copy(mne_obj_of_tmp_path, dst, overwrite=False)
 
     assert not is_successful(res)
     with pytest.raises(ValueError):
@@ -70,14 +70,14 @@ def test_default_copy_fails_when_overwrite_false_and_dst_exists(
 @pytest.mark.parametrize("overwrite", [True, False], ids=OVERWRITE_IDS)
 def test_default_copy_uses_src_fname_when_dst_is_dir(
     mock_shutil_copy: Mock,
-    mne_obj_tmp_path: MneType,
+    mne_obj_of_tmp_path: MneType,
     tmp_path_factory: pytest.TempPathFactory,
     overwrite: bool,
 ) -> None:
     """Test copy default implementation when specifying directory as dst."""
     dst_dir = tmp_path_factory.mktemp("copy_dst_dir", numbered=True)
-    dst_fpath = dst_dir / mne_obj_tmp_path.fpath.name
+    dst_fpath = dst_dir / mne_obj_of_tmp_path.fpath.name
 
-    copy(mne_obj_tmp_path, dst_dir, overwrite)
+    copy(mne_obj_of_tmp_path, dst_dir, overwrite)
 
-    mock_shutil_copy.assert_called_once_with(mne_obj_tmp_path.fpath, dst_fpath)
+    mock_shutil_copy.assert_called_once_with(mne_obj_of_tmp_path.fpath, dst_fpath)
