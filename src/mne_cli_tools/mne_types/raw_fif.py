@@ -60,10 +60,12 @@ def read(fpath: Path) -> RawFif:
 
 
 @impure_safe
-def copy(mne_obj: RawFif, dst: Path, overwrite: bool) -> None:
+def copy(mne_obj: RawFif, dst: Path, overwrite: bool, split_size: str = "2GB") -> None:
     """Copy raw file in a split-safe manner."""
     if dst.is_dir():
         dst = dst / mne_obj.fpath.name
     split_naming = "bids" if str(dst).endswith(BIDS_EXT) else "neuromag"
 
-    mne_obj.raw.save(dst, overwrite=overwrite, split_naming=split_naming)
+    mne_obj.raw.save(
+        fname=dst, overwrite=overwrite, split_naming=split_naming, split_size=split_size
+    )

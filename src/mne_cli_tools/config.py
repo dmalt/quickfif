@@ -1,5 +1,4 @@
 """Configure dispatch on MneType objects for supported file types."""
-import shutil
 from enum import StrEnum
 from functools import singledispatch
 from pathlib import Path
@@ -7,6 +6,7 @@ from typing import Callable
 
 from returns.io import IOResultE, impure_safe
 
+from mne_cli_tools.api.errors import UnsupportedOperationError
 from mne_cli_tools.mne_types import annotations, epochs, ica, raw_fif
 from mne_cli_tools.types import Ext, MneType
 
@@ -46,13 +46,9 @@ for ft, exts in ftype_to_ext.items():
 
 @singledispatch
 @impure_safe
-def copy(mne_obj: MneType, dst: Path, overwrite: bool) -> None:
+def copy(mne_obj: MneType, dst: Path, overwrite: bool) -> None:  # pyright: ignore
     """Copy mne object."""
-    if dst.is_dir():
-        dst = dst / mne_obj.fpath.name
-    if not overwrite and dst.exists():
-        raise ValueError(f"Destination file '{dst}' exists.")
-    shutil.copy(mne_obj.fpath, dst)
+    raise UnsupportedOperationError(f"copy is not supported for {mne_obj}")
 
 
 copy.register(raw_fif.copy)

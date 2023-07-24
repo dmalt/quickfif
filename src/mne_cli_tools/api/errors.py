@@ -55,3 +55,7 @@ class ConsoleEmbedError(click.ClickException):
     def __init__(self, exc: Exception):
         super().__init__(message=str(exc))
         self.exit_code = ExitCode.embed_failed
+
+
+class UnsupportedOperationError(Exception):
+    """Operation not supported for this file type."""

@@ -1,3 +1,4 @@
+"""Test reading `mne.io.Raw` objects."""
 from numpy.testing import assert_array_almost_equal
 from returns.unsafe import unsafe_perform_io
 
