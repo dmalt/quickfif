@@ -5,21 +5,25 @@ from typing import Final
 
 import pandas as pd
 from mne import Annotations, read_annotations
-from returns.io import impure_safe
 
 EXTENSIONS: Final[tuple[str, ...]] = ("_annot.fif", "-annot.fif")
 
 
+SUMMARY_HEADER: Final = "Annotations duration statistics"
+
+
 @dataclass
 class AnnotsFif(object):
-    """MneType implementation for mne.Annotations."""
+    """MctType implementation for mne.Annotations."""
 
     fpath: Path
     annots: Annotations
 
-    def __str__(self) -> str:
+    @property
+    def summary(self) -> str:
         """Annotations string representation."""
-        return get_annots_summary(self.annots)
+        underline = "-" * len(SUMMARY_HEADER)
+        return "\n".join([SUMMARY_HEADER, underline, get_annots_summary(self.annots)])
 
     def to_dict(self) -> dict[str, Path | Annotations]:
         """Convert to namespace dictionary."""
@@ -38,7 +42,6 @@ def get_annots_summary(annots: Annotations) -> str:
     return joint_df.to_string(float_format=lambda x: "{0:.2f}".format(x))
 
 
-@impure_safe
 def read(fpath: Path) -> AnnotsFif:
     """Read the annotations."""
     annots = read_annotations(str(fpath))  # noqa: WPS601 (shadowed class attr)

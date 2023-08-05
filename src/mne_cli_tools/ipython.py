@@ -3,11 +3,9 @@ from typing import Any
 
 import IPython
 import matplotlib
-from returns.io import impure_safe
 from traitlets.config.loader import Config
 
 
-@impure_safe
 def embed_ipython(ns: dict[str, Any]) -> None:  # type: ignore[misc]
     """
     Embed IPython console with populated namespace.

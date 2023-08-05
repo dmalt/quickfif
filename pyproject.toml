@@ -4,7 +4,7 @@ version = "0.1.3"
 description = ""
 authors = ["Dmitrii Altukhov <dm.altukhov@ya.ru>"]
 [tool.poetry.scripts]
-mct = "mne_cli_tools.main:main"
+mct = "mne_cli_tools.cli.main:main"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
@@ -16,6 +16,7 @@ scipy = "^1.8.1"
 click = "^8.1.3"
 phantom-types = "^2.1.0"
 returns = "^0.21.0"
+scikit-learn = "^1.3.0"
 
 [tool.poetry.group.dev.dependencies]
 wemake-python-styleguide = "^0.18.0"

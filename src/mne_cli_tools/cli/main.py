@@ -5,9 +5,17 @@ from typing import Any, Callable, Concatenate, ParamSpec, Protocol, TypeVar
 
 import click
 
-from mne_cli_tools.api.commands import open_in_console, read_mne_obj, safe_copy
-from mne_cli_tools.api.docs import ftype_help, get_ftype_choices
-from mne_cli_tools.types import MneType
+from mne_cli_tools.cli.docs import FTYPE_HELP, get_ftype_choices
+from mne_cli_tools.cli.errors import (
+    BrokenFileClickError,
+    ConsoleEmbedClickError,
+    CopyFailedClickError,
+    UnsupportedFtypeClickError,
+)
+from mne_cli_tools.config import Ftype, mct_read, mct_save
+from mne_cli_tools.ipython import embed_ipython
+from mne_cli_tools.mct_types.base import MctType
+from mne_cli_tools.parsers import parse_ftype
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -30,37 +38,52 @@ class ClickContext(Protocol):
     """Refined part of `click.Context` that we actually use."""
 
     invoked_subcommand: bool
-    obj: MneType  # noqa: WPS110 (wrong variable name)
+    obj: MctType  # noqa: WPS110 (wrong variable name)
 
 
 @click.group(invoke_without_command=True)
 @click.argument("fpath", type=click.Path(exists=True, dir_okay=False, path_type=Path))
-@click.option("-t", "--ftype", type=click.Choice(get_ftype_choices()), help=ftype_help)
+@click.option("-t", "--ftype", type=click.Choice(get_ftype_choices()), help=FTYPE_HELP)
 @click.pass_context
 def main(ctx: ClickContext, fpath: Path, ftype: str | None) -> None:
     """When invoked without subcommands: show file preview."""
-    mne_obj = read_mne_obj(fpath, ftype)
+    try:
+        ftype = Ftype(ftype) if ftype else parse_ftype(fpath)
+    except ValueError:
+        raise UnsupportedFtypeClickError(fpath)
+
+    try:
+        mct_obj = mct_read(fpath, ftype)
+    except Exception as exc:
+        raise BrokenFileClickError(fpath, exc)
+
     if ctx.invoked_subcommand:
-        ctx.obj = mne_obj  # pass the object to subcommands via context
+        ctx.obj = mct_obj  # pass the object to subcommands via context
     else:
-        click.echo(mne_obj)
+        click.echo(mct_obj.summary)
 
 
 @main.command()
 @pass_obj
-def inspect(mne_obj: MneType) -> None:
+def inspect(mct_obj: MctType) -> None:
     """Inspect file in IPython interactive console."""
-    open_in_console(mne_obj)
+    try:
+        embed_ipython(mct_obj.to_dict())
+    except Exception as exc:
+        raise ConsoleEmbedClickError(exc)
 
 
 @main.command()
 @click.argument("dst", type=click.Path(path_type=Path, dir_okay=True, writable=True))
-@click.option("-o", "--overwrite", type=bool, default=False, help="Overwrite destination file.")
+@click.option("-o", "--overwrite", is_flag=True, default=False, help="Overwrite destination file.")
 @pass_obj
-def copy(mne_obj: MneType, dst: Path, overwrite: bool) -> None:
+def copy(mct_obj: MctType, dst: Path, overwrite: bool) -> None:
     """Safely copy mne file. Existing destination is overwritten.
 
     Works correctly with large fif file splits.
 
     """
-    safe_copy(mne_obj, dst, overwrite)
+    try:
+        mct_save(mct_obj, dst, overwrite)
+    except Exception as exc:
+        raise CopyFailedClickError(dst, exc)

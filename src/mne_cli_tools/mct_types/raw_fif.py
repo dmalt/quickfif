@@ -4,9 +4,8 @@ from pathlib import Path
 from typing import Final
 
 from mne.io import Raw, read_raw_fif
-from returns.io import impure_safe
 
-from mne_cli_tools.mne_types.annotations import get_annots_summary
+from mne_cli_tools.mct_types.annotations import get_annots_summary
 
 _NMG_SFX = ("raw", "raw_sss", "raw_tsss")
 _BIDS_SFX = ("_meg", "_eeg", "_ieeg")
@@ -31,12 +30,13 @@ def _get_raw_summary(raw: Raw) -> str:
 
 @dataclass
 class RawFif(object):
-    """MneType implementation for `mne.io.Raw` object."""
+    """MctType implementation for `mne.io.Raw` object."""
 
     fpath: Path
     raw: Raw
 
-    def __str__(self) -> str:
+    @property
+    def summary(self) -> str:
         """Raw object summary."""
         res = [_get_raw_summary(self.raw), str(self.raw.info)]
         if self.raw.annotations:
@@ -52,20 +52,18 @@ class RawFif(object):
         return asdict(self)
 
 
-@impure_safe
 def read(fpath: Path) -> RawFif:
     """Read raw object."""
     raw = read_raw_fif(fpath, verbose="ERROR")  # noqa: WPS601
     return RawFif(fpath, raw)
 
 
-@impure_safe
-def copy(mne_obj: RawFif, dst: Path, overwrite: bool, split_size: str = "2GB") -> None:
+def save(mct_obj: RawFif, dst: Path, overwrite: bool, split_size: str = "2GB") -> None:
     """Copy raw file in a split-safe manner."""
     if dst.is_dir():
-        dst = dst / mne_obj.fpath.name
+        dst = dst / mct_obj.fpath.name
     split_naming = "bids" if str(dst).endswith(BIDS_EXT) else "neuromag"
 
-    mne_obj.raw.save(
+    mct_obj.raw.save(
         fname=dst, overwrite=overwrite, split_naming=split_naming, split_size=split_size
     )

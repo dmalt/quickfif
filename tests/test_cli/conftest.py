@@ -1,15 +1,10 @@
+"""Doc."""
+
 import pytest
 from click.testing import CliRunner
-from pytest_mock import MockerFixture
 
-from mne_cli_tools.api.docs import get_ftype_choices
-from tests.fake_mne_type import FakeMneType
-
-
-@pytest.fixture(params=get_ftype_choices() + [None])
-def ftype_args(request: pytest.FixtureRequest) -> list[str]:
-    """Ftype option as returned by click."""
-    return [] if request.param is None else ["--ftype", request.param]
+from mne_cli_tools.config import Ftype
+from mne_cli_tools.mct_types.base import MctType
 
 
 @pytest.fixture
@@ -18,12 +13,13 @@ def cli():
     return CliRunner()
 
 
-@pytest.fixture
-def mock_read_mne_obj_result(mocker: MockerFixture, empty_file_factory) -> FakeMneType:
-    """Patch mne obj reading. Return the return value of the mocked function."""
-    fpath = empty_file_factory("test_base.test_ext")
-    test_mne_obj = FakeMneType(fpath=fpath, mne_obj="test mne object")
-    mock = mocker.patch("mne_cli_tools.main.read_mne_obj", autospec=True)
-    mock.return_value = test_mne_obj
+@pytest.fixture(params=[True, False], ids=["pass ft", "don't pass ft"])
+def ftype_args(request, ftype: Ftype) -> list[str]:
+    """Weither to pass file type to CLI or not with --ftype option."""
+    return ["--ftype", str(ftype)] if request.param else []
 
-    return test_mne_obj
+
+@pytest.fixture()
+def main_args(ftype_args: list[str], saved_mct_obj: MctType) -> list[str]:
+    """Ftype option as returned by click."""
+    return ftype_args + [str(saved_mct_obj.fpath)]

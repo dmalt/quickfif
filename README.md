@@ -91,7 +91,7 @@ The command will show current configuration in json format, e.g:
 ```json
 {
   "ftype_plugins": {
-    "mne_cli_tools.mne_types.raw_fif": {
+    "mne_cli_tools.mct_types.raw_fif": {
       "extensions": [
         "raw.fif",
         "raw_sss.fif",
@@ -107,13 +107,13 @@ The command will show current configuration in json format, e.g:
         "_ieeg.fif.gz"
       ]
     },
-    "mne_cli_tools.mne_types.annotations": {
+    "mne_cli_tools.mct_types.annotations": {
       "extensions": ["_annot.fif", "-annot.fif"]
     },
-    "mne_cli_tools.mne_types.epochs": {
+    "mne_cli_tools.mct_types.epochs": {
       "extensions": ["-epo.fif", "_epo.fif"]
     },
-    "mne_cli_tools.mne_types.ica": {
+    "mne_cli_tools.mct_types.ica": {
       "extensions": ["_ica.fif", "-ica.fif"]
     }
   }

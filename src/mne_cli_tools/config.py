@@ -1,14 +1,14 @@
-"""Configure dispatch on MneType objects for supported file types."""
+"""Configure dispatch on MctType objects for supported file types."""
 from enum import StrEnum
 from functools import singledispatch
 from pathlib import Path
-from typing import Callable
+from types import MappingProxyType
+from typing import Callable, Final, TypeAlias
 
-from returns.io import IOResultE, impure_safe
+from mne_cli_tools.mct_types import annotations, epochs, ica, raw_fif
+from mne_cli_tools.mct_types.base import MctType
 
-from mne_cli_tools.api.errors import UnsupportedOperationError
-from mne_cli_tools.mne_types import annotations, epochs, ica, raw_fif
-from mne_cli_tools.types import Ext, MneType
+Ext: TypeAlias = "str"
 
 
 class Ftype(StrEnum):
@@ -26,29 +26,40 @@ class Ftype(StrEnum):
     epochs = "epochs"
 
 
-ReadFunc = Callable[[Path], IOResultE[MneType]]
-ftype_to_read_func: dict[Ftype, ReadFunc] = {
+_ftype_to_read_func: dict[Ftype, Callable[[Path], MctType]] = {
     Ftype.epochs: epochs.read,
     Ftype.annots: annotations.read,
     Ftype.ica: ica.read,
     Ftype.raw: raw_fif.read,
 }
-ftype_to_ext: dict[Ftype, tuple[Ext, ...]] = {
+_ftype_to_ext: dict[Ftype, tuple[Ext, ...]] = {
     Ftype.epochs: epochs.EXTENSIONS,
     Ftype.annots: annotations.EXTENSIONS,
     Ftype.ica: ica.EXTENSIONS,
     Ftype.raw: raw_fif.EXTENSIONS,
 }
-ext_to_ftype: dict[Ext, Ftype] = {}
-for ft, exts in ftype_to_ext.items():
-    ext_to_ftype.update(**{ext: ft for ext in exts})
+_ext_to_ftype: dict[Ext, Ftype] = {}
+for ft, exts in _ftype_to_ext.items():
+    _ext_to_ftype.update(**{ext: ft for ext in exts})
+
+FTYPE_TO_EXT: Final = MappingProxyType(_ftype_to_ext)
+EXT_TO_FTYPE: Final = MappingProxyType(_ext_to_ftype)
+
+
+def mct_read(fpath: Path, ftype: Ftype) -> MctType:
+    """Read MctType object."""
+    return _ftype_to_read_func[ftype](fpath)
+
+
+class UnsupportedOperationError(Exception):
+    """Operation not supported for this file type."""
 
 
 @singledispatch
-@impure_safe
-def copy(mne_obj: MneType, dst: Path, overwrite: bool) -> None:  # pyright: ignore
+def mct_save(mct_obj: MctType, dst: Path, overwrite: bool) -> None:  # pyright: ignore
     """Copy mne object."""
-    raise UnsupportedOperationError(f"copy is not supported for {mne_obj}")
+    raise UnsupportedOperationError(f"copy is not supported for {mct_obj}")
 
 
-copy.register(raw_fif.copy)
+mct_save.register(raw_fif.save)
+mct_save.register(epochs.save)

@@ -1,22 +1,15 @@
-"""Test config.copy() dispatching."""
+"""Test config.mct_save() dispatching."""
 from inspect import Parameter, signature
-from typing import Callable, Protocol
+from typing import TYPE_CHECKING, Callable, Protocol
 
 import pytest
-from returns.functions import raise_exception
-from returns.pipeline import is_successful
 
-from mne_cli_tools.api.errors import UnsupportedOperationError
-from mne_cli_tools.config import copy, ext_to_ftype, ftype_to_ext
-from mne_cli_tools.types import MneType
-from tests.fake_mne_type import FakeMneType
+from mne_cli_tools.config import UnsupportedOperationError, mct_save
+from mne_cli_tools.mct_types.base import MctType
+from tests.plugins.fake_mct_type import FakeMctType
 
-
-def test_no_duplicates_in_extensions():
-    """Test extensions don't have any duplicates."""
-    len_specified = sum(len(set(extensions)) for extensions in ftype_to_ext.values())
-
-    assert len_specified == len(ext_to_ftype)
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class ArgParseFn(Protocol):
@@ -53,50 +46,59 @@ def test_registered_copy_functions_have_coherent_signatures(parse_args: ArgParse
     default implementation signature.
 
     """
-    base_required, base_default = parse_args(copy)
+    base_required, base_default = parse_args(mct_save)
 
-    for dispatch_fn in copy.registry.values():
+    for dispatch_fn in mct_save.registry.values():
         disp_fn_required, disp_fn_default = parse_args(dispatch_fn)
         assert base_required == disp_fn_required
         assert base_default.issubset(disp_fn_default), f"{base_default=}, {disp_fn_default=}"
 
 
-def test_copy_fails_when_overwrite_false_and_dst_exists(mne_obj: MneType) -> None:
-    """Test default implementation of copy fails when we try not permitted overwrite."""
-    fpath = mne_obj.fpath
+def test_copy_fails_when_overwrite_false_and_dst_exists(saved_mct_obj: MctType) -> None:
+    """Test default implementation of mct_save fails when we try not permitted overwrite."""
+    fpath = saved_mct_obj.fpath
     dst = fpath.parent / f"copy_{fpath.name}"
     dst.touch()
 
-    res = copy(mne_obj, dst, overwrite=False)
-
-    assert not is_successful(res)
     with pytest.raises(FileExistsError):
-        res.alt(raise_exception).unwrap()
+        mct_save(saved_mct_obj, dst, overwrite=False)
 
 
 @pytest.mark.parametrize("overwrite", [True, False])
 def test_copy_uses_src_fname_when_dst_is_dir(
-    mne_obj: MneType, tmp_path_factory: pytest.TempPathFactory, overwrite: bool
+    saved_mct_obj: MctType, tmp_path_factory: pytest.TempPathFactory, overwrite: bool
 ) -> None:
-    """Test copy default implementation when specifying directory as dst."""
+    """Test mct_save default implementation when specifying directory as dst."""
     dst_dir = tmp_path_factory.mktemp("copy_dst_dir", numbered=True)
-    dst_fpath = dst_dir / mne_obj.fpath.name
+    dst_fpath = dst_dir / saved_mct_obj.fpath.name
     assert not dst_fpath.exists()
 
-    copy(mne_obj, dst_dir, overwrite)
+    mct_save(saved_mct_obj, dst_dir, overwrite)
 
     assert dst_fpath.exists()
 
 
+@pytest.fixture
+def fake_mct_obj(tmp_path: "Path") -> FakeMctType:
+    """Mne obj wrapping fpath in temporary directory."""
+    src_path = tmp_path / "test_fake.fk"
+    src_path.touch()
+    return FakeMctType(src_path, "test_obj")
+
+
 @pytest.mark.parametrize("overwrite", [True, False])
-def test_copy_fails_with_unsupported_operation_for_unregistered_type(
-    fake_mne_obj: FakeMneType, overwrite: bool
+def test_copy_fails_for_unregistered_type_with_unsupported_operation_error(
+    fake_mct_obj: FakeMctType, overwrite: bool
 ) -> None:
-    fpath = fake_mne_obj.fpath
+    """
+    Test mct_save fro ftype fails when ftype-specific implementation is not registered.
+
+    Ftypes for which mct_save is not explicitly registered shouldn't use some
+    default implementation silently.
+
+    """
+    fpath = fake_mct_obj.fpath
     dst = fpath.parent / f"copy_{fpath.name}"
 
-    res = copy(fake_mne_obj, dst, overwrite)
-
-    assert not is_successful(res)
     with pytest.raises(UnsupportedOperationError):
-        res.alt(raise_exception).unwrap()
+        mct_save(fake_mct_obj, dst, overwrite)

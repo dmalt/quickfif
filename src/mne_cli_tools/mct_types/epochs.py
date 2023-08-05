@@ -4,19 +4,21 @@ from pathlib import Path
 from typing import Final
 
 from mne.epochs import EpochsFIF, read_epochs
-from returns.io import impure_safe
 
-EXTENSIONS: Final[tuple[str, ...]] = ("-epo.fif", "_epo.fif")
+BIDS_EXT: Final = ("_epo.fif",)
+NEUROMAG_EXT: Final = ("-epo.fif",)
+EXTENSIONS: Final[tuple[str, ...]] = BIDS_EXT + NEUROMAG_EXT
 
 
 @dataclass
 class EpochsFif(object):
-    """MneType implementation for `mne.Epochs`."""
+    """MctType implementation for `mne.Epochs`."""
 
     fpath: Path
     epochs: EpochsFIF
 
-    def __str__(self) -> str:
+    @property
+    def summary(self) -> str:
         """Provide `mne.Epochs` object summary."""
         return str(self.epochs.info)
 
@@ -25,8 +27,18 @@ class EpochsFif(object):
         return asdict(self)
 
 
-@impure_safe
 def read(fpath: Path) -> EpochsFif:  # pyright: ignore
     """Read epochs."""
     ep = read_epochs(str(fpath), verbose="ERROR")  # noqa: WPS601
     return EpochsFif(fpath, ep)
+
+
+def save(mct_obj: EpochsFif, dst: Path, overwrite: bool, split_size: str = "2GB") -> None:
+    """Copy raw file in a split-safe manner."""
+    if dst.is_dir():
+        dst = dst / mct_obj.fpath.name
+    split_naming = "bids" if str(dst).endswith(BIDS_EXT) else "neuromag"
+
+    mct_obj.epochs.save(
+        fname=dst, overwrite=overwrite, split_naming=split_naming, split_size=split_size
+    )
