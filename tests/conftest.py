@@ -7,8 +7,13 @@ import pytest
 from pytest_mock import MockerFixture
 
 from mne_cli_tools.config import EXT_TO_FTYPE, Ftype, mct_save
-from mne_cli_tools.mct_types import annotations, epochs, ica, raw_fif
+from mne_cli_tools.mct_types.annots_type import EXTENSIONS as ANNOTS_EXTENSIONS
+from mne_cli_tools.mct_types.annots_type import MctAnnots
 from mne_cli_tools.mct_types.base import MctType
+from mne_cli_tools.mct_types.epochs_type import EXTENSIONS as EPOCHS_EXTENSIONS
+from mne_cli_tools.mct_types.epochs_type import MctEpochs
+from mne_cli_tools.mct_types.raw_type import EXTENSIONS as RAW_EXTENSIONS
+from mne_cli_tools.mct_types.raw_type import MctRaw
 
 pytest_plugins = (
     "tests.plugins.raw_fif_fixtures",
@@ -42,7 +47,7 @@ def mock_fn_factory(mocker: MockerFixture) -> Callable[[object, str], Mock]:
     return factory
 
 
-@pytest.fixture(params=raw_fif.EXTENSIONS + epochs.EXTENSIONS)
+@pytest.fixture(params=RAW_EXTENSIONS + EPOCHS_EXTENSIONS)
 def ext(request) -> str:
     """`MctType` obj saved to a filesystem."""
     return request.param
@@ -58,14 +63,17 @@ def ftype(ext: str) -> Ftype:
 def mct_obj(
     ftype: Ftype,
     ext: str,
-    mct_raw_factory: Callable[[str], raw_fif.RawFif],
-    mct_epochs_factory: Callable[[str], epochs.EpochsFif],
+    mct_raw_factory: Callable[[str], MctRaw],
+    mct_epochs_factory: Callable[[str], MctEpochs],
+    mct_annots_factory: Callable[[str], MctAnnots],
 ) -> MctType:
     match ftype:
         case Ftype.raw:
             return mct_raw_factory(ext)
         case Ftype.epochs:
             return mct_epochs_factory(ext)
+        case Ftype.annots:
+            return mct_annots_factory(ext)
         case _:
             raise ValueError
 

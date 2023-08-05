@@ -11,7 +11,7 @@ EXTENSIONS: Final[tuple[str, ...]] = BIDS_EXT + NEUROMAG_EXT
 
 
 @dataclass
-class EpochsFif(object):
+class MctEpochs(object):
     """MctType implementation for `mne.Epochs`."""
 
     fpath: Path
@@ -27,13 +27,13 @@ class EpochsFif(object):
         return asdict(self)
 
 
-def read(fpath: Path) -> EpochsFif:  # pyright: ignore
+def read(fpath: Path) -> MctEpochs:  # pyright: ignore
     """Read epochs."""
     ep = read_epochs(str(fpath), verbose="ERROR")  # noqa: WPS601
-    return EpochsFif(fpath, ep)
+    return MctEpochs(fpath, ep)
 
 
-def save(mct_obj: EpochsFif, dst: Path, overwrite: bool, split_size: str = "2GB") -> None:
+def save(mct_obj: MctEpochs, dst: Path, overwrite: bool, split_size: str = "2GB") -> None:
     """Copy raw file in a split-safe manner."""
     if dst.is_dir():
         dst = dst / mct_obj.fpath.name

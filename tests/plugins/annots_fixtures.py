@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from mne import Annotations
 
-from mne_cli_tools.mct_types import annotations
+from mne_cli_tools.mct_types.annots_type import EXTENSIONS, MctAnnots
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -30,24 +30,36 @@ def create_fake_annots() -> Callable[[float, float], Annotations]:
     return wrapped
 
 
-@pytest.fixture(params=annotations.EXTENSIONS)
+@pytest.fixture(params=EXTENSIONS)
 def annots_ext(request: pytest.FixtureRequest) -> str:
     """Extension for raw fif obj."""
     return request.param
 
 
 @pytest.fixture
-def mct_annots(
-    annots_ext: str, tmp_path: "Path", create_fake_annots: Callable[[float, float], Annotations]
-) -> Annotations:
-    """Mct annotations instance."""
-    save_fpath = tmp_path / f"test{annots_ext}"
-    annots = create_fake_annots(0, 1)
-    return annotations.AnnotsFif(save_fpath, annots)  # pyright: ignore
+def small_annots_obj(create_fake_annots: Callable[[float, float], Annotations]) -> Annotations:
+    return create_fake_annots(0, 1)
 
 
 @pytest.fixture
-def saved_mct_annots(mct_annots: annotations.AnnotsFif) -> annotations.AnnotsFif:
+def mct_annots_factory(
+    tmp_path: "Path", small_annots_obj: Annotations
+) -> Callable[[str], MctAnnots]:
+    def factory(annots_ext: str) -> MctAnnots:
+        save_fpath = tmp_path / f"test{annots_ext}"
+        return MctAnnots(save_fpath, small_annots_obj)  # pyright: ignore
+
+    return factory
+
+
+@pytest.fixture
+def mct_annots(annots_ext: str, mct_annots_factory: Callable[[str], Annotations]) -> MctAnnots:
+    """Mct annotations instance."""
+    return mct_annots_factory(annots_ext)
+
+
+@pytest.fixture
+def saved_mct_annots(mct_annots: MctAnnots) -> MctAnnots:
     """Mct annotations instance with annots saved to fpath."""
     mct_annots.annots.save(mct_annots.fpath)
     return mct_annots

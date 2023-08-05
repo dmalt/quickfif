@@ -13,7 +13,7 @@ SUMMARY_HEADER: Final = "Annotations duration statistics"
 
 
 @dataclass
-class AnnotsFif(object):
+class MctAnnots(object):
     """MctType implementation for mne.Annotations."""
 
     fpath: Path
@@ -42,7 +42,7 @@ def get_annots_summary(annots: Annotations) -> str:
     return joint_df.to_string(float_format=lambda x: "{0:.2f}".format(x))
 
 
-def read(fpath: Path) -> AnnotsFif:
+def read(fpath: Path) -> MctAnnots:
     """Read the annotations."""
     annots = read_annotations(str(fpath))  # noqa: WPS601 (shadowed class attr)
-    return AnnotsFif(fpath, annots)
+    return MctAnnots(fpath, annots)

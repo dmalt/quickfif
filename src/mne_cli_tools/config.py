@@ -5,7 +5,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Callable, Final, TypeAlias
 
-from mne_cli_tools.mct_types import annotations, epochs, ica, raw_fif
+from mne_cli_tools.mct_types import annots_type, epochs_type, ica_type, raw_type
 from mne_cli_tools.mct_types.base import MctType
 
 Ext: TypeAlias = "str"
@@ -27,16 +27,16 @@ class Ftype(StrEnum):
 
 
 _ftype_to_read_func: dict[Ftype, Callable[[Path], MctType]] = {
-    Ftype.epochs: epochs.read,
-    Ftype.annots: annotations.read,
-    Ftype.ica: ica.read,
-    Ftype.raw: raw_fif.read,
+    Ftype.epochs: epochs_type.read,
+    Ftype.annots: annots_type.read,
+    Ftype.ica: ica_type.read,
+    Ftype.raw: raw_type.read,
 }
 _ftype_to_ext: dict[Ftype, tuple[Ext, ...]] = {
-    Ftype.epochs: epochs.EXTENSIONS,
-    Ftype.annots: annotations.EXTENSIONS,
-    Ftype.ica: ica.EXTENSIONS,
-    Ftype.raw: raw_fif.EXTENSIONS,
+    Ftype.epochs: epochs_type.EXTENSIONS,
+    Ftype.annots: annots_type.EXTENSIONS,
+    Ftype.ica: ica_type.EXTENSIONS,
+    Ftype.raw: raw_type.EXTENSIONS,
 }
 _ext_to_ftype: dict[Ext, Ftype] = {}
 for ft, exts in _ftype_to_ext.items():
@@ -61,5 +61,5 @@ def mct_save(mct_obj: MctType, dst: Path, overwrite: bool) -> None:  # pyright: 
     raise UnsupportedOperationError(f"copy is not supported for {mct_obj}")
 
 
-mct_save.register(raw_fif.save)
-mct_save.register(epochs.save)
+mct_save.register(raw_type.save)
+mct_save.register(epochs_type.save)

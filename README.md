@@ -139,7 +139,7 @@ from mne_cli_tools import factory
 
 
 @dataclass
-class EpochsFif:
+class MctEpochs:
     fname: str
     epochs: mne.Epochs = field(init=False)
 
@@ -155,7 +155,7 @@ class EpochsFif:
 
 def initialize(extensions: list[str]) -> None:
     for ext in extensions:
-        factory.register(ext, EpochsFif)
+        factory.register(ext, MctEpochs)
 ```
 
 To add this plugin to `pipx` virtualenv, use `pipx inject`. Then, create a

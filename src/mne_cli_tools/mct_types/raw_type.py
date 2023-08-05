@@ -1,11 +1,11 @@
-"""Plugin handling `mne.io.RawFif`."""
+"""Plugin handling `mne.io.MctRaw`."""
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Final
 
 from mne.io import Raw, read_raw_fif
 
-from mne_cli_tools.mct_types.annotations import get_annots_summary
+from mne_cli_tools.mct_types.annots_type import get_annots_summary
 
 _NMG_SFX = ("raw", "raw_sss", "raw_tsss")
 _BIDS_SFX = ("_meg", "_eeg", "_ieeg")
@@ -29,7 +29,7 @@ def _get_raw_summary(raw: Raw) -> str:
 
 
 @dataclass
-class RawFif(object):
+class MctRaw(object):
     """MctType implementation for `mne.io.Raw` object."""
 
     fpath: Path
@@ -52,13 +52,13 @@ class RawFif(object):
         return asdict(self)
 
 
-def read(fpath: Path) -> RawFif:
+def read(fpath: Path) -> MctRaw:
     """Read raw object."""
     raw = read_raw_fif(fpath, verbose="ERROR")  # noqa: WPS601
-    return RawFif(fpath, raw)
+    return MctRaw(fpath, raw)
 
 
-def save(mct_obj: RawFif, dst: Path, overwrite: bool, split_size: str = "2GB") -> None:
+def save(mct_obj: MctRaw, dst: Path, overwrite: bool, split_size: str = "2GB") -> None:
     """Copy raw file in a split-safe manner."""
     if dst.is_dir():
         dst = dst / mct_obj.fpath.name

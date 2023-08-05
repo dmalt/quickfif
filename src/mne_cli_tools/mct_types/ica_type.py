@@ -9,7 +9,7 @@ EXTENSIONS: Final[tuple[str, ...]] = ("_ica.fif", "-ica.fif")
 
 
 @dataclass
-class IcaFif(object):
+class MctIca(object):
     """MctType implementation for `mne.preprocessing.ICA`."""
 
     fpath: Path
@@ -25,7 +25,7 @@ class IcaFif(object):
         return asdict(self)
 
 
-def read(fpath: Path) -> IcaFif:
+def read(fpath: Path) -> MctIca:
     """Read ICA solution."""
     ica = read_ica(str(fpath), verbose="ERROR")  # noqa: WPS601
-    return IcaFif(fpath, ica)
+    return MctIca(fpath, ica)

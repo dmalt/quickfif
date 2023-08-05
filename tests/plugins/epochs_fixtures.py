@@ -6,7 +6,8 @@ import pytest
 from mne import EpochsArray, create_info
 from mne.epochs import EpochsFIF
 
-from mne_cli_tools.mct_types import epochs
+from mne_cli_tools.mct_types.epochs_type import EXTENSIONS as EPOCHS_EXTENSIONS
+from mne_cli_tools.mct_types.epochs_type import MctEpochs
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -21,7 +22,7 @@ class EpochsFactory(Protocol):  # noqa: D101
 
 @pytest.fixture
 def epochs_obj_factory() -> EpochsFactory:
-    """Sample EpochsFif object factory."""
+    """Sample MctEpochs object factory."""
 
     def factory(
         n_epo: int, n_ch: int, sfreq: float, epo_dur_sec: float, ch_types="misc"
@@ -39,7 +40,7 @@ def small_epochs_obj(epochs_obj_factory: EpochsFactory) -> EpochsArray:
     return epochs_obj_factory(5, 2, 100, epo_dur_sec=0.2)  # noqa: WPS432
 
 
-@pytest.fixture(params=epochs.EXTENSIONS)
+@pytest.fixture(params=EPOCHS_EXTENSIONS)
 def epochs_ext(request: pytest.FixtureRequest) -> str:
     """Extension for raw fif obj."""
     return request.param
@@ -48,22 +49,21 @@ def epochs_ext(request: pytest.FixtureRequest) -> str:
 @pytest.fixture
 def mct_epochs_factory(
     tmp_path: "Path", small_epochs_obj: EpochsFIF
-) -> Callable[[str], epochs.EpochsFif]:
-
-    def factory(epochs_ext: str) -> epochs.EpochsFif:
-        return epochs.EpochsFif(tmp_path / f"test{epochs_ext}", small_epochs_obj)
+) -> Callable[[str], MctEpochs]:
+    def factory(epochs_ext: str) -> MctEpochs:
+        return MctEpochs(tmp_path / f"test{epochs_ext}", small_epochs_obj)
 
     return factory
 
 
 @pytest.fixture
-def mct_epochs(epochs_ext: str, mct_epochs_factory: Callable[[str], epochs.EpochsFif]) -> epochs.EpochsFif:
+def mct_epochs(epochs_ext: str, mct_epochs_factory: Callable[[str], MctEpochs]) -> MctEpochs:
     """Mct ica instance."""
     return mct_epochs_factory(epochs_ext)
 
 
 @pytest.fixture
-def saved_mct_epochs(mct_epochs) -> epochs.EpochsFif:
+def saved_mct_epochs(mct_epochs) -> MctEpochs:
     """Mct ica instance saved to filesystem."""
     mct_epochs.epochs.save(mct_epochs.fpath)
     return mct_epochs

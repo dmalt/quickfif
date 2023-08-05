@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING, Callable
 import pytest
 from mne.preprocessing import ICA
 
-from mne_cli_tools.mct_types import ica
+from mne_cli_tools.mct_types.ica_type import EXTENSIONS as ICA_EXTENSIONS
+from mne_cli_tools.mct_types.ica_type import MctIca
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -24,20 +25,20 @@ def ica_obj(raw_obj_factory: Callable[[int, float, float, str], "RawArray"]) -> 
     return ica
 
 
-@pytest.fixture(params=ica.EXTENSIONS)
+@pytest.fixture(params=ICA_EXTENSIONS)
 def ica_ext(request: pytest.FixtureRequest) -> str:
     """Extension for raw fif obj."""
     return request.param
 
 
 @pytest.fixture
-def mct_ica(tmp_path: "Path", ica_obj: ICA, ica_ext: str) -> ica.IcaFif:
+def mct_ica(tmp_path: "Path", ica_obj: ICA, ica_ext: str) -> MctIca:
     """Mct ica instance."""
-    return ica.IcaFif(tmp_path / f"test{ica_ext}", ica_obj)
+    return MctIca(tmp_path / f"test{ica_ext}", ica_obj)
 
 
 @pytest.fixture
-def saved_mct_ica(mct_ica) -> ica.IcaFif:
+def saved_mct_ica(mct_ica) -> MctIca:
     """Mct ica instance saved to filesystem."""
     mct_ica.ica.save(mct_ica.fpath)
     return mct_ica
