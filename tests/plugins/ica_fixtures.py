@@ -32,9 +32,17 @@ def ica_ext(request: pytest.FixtureRequest) -> str:
 
 
 @pytest.fixture
-def mct_ica(tmp_path: "Path", ica_obj: ICA, ica_ext: str) -> MctIca:
+def mct_ica_factory(tmp_path: "Path", ica_obj: ICA) -> Callable[[str], MctIca]:
+    def factory(ica_ext: str) -> MctIca:
+        return MctIca(tmp_path / f"test{ica_ext}", ica_obj)
+
+    return factory
+
+
+@pytest.fixture
+def mct_ica(ica_ext: str, mct_ica_factory: Callable[[str], MctIca]) -> MctIca:
     """Mct ica instance."""
-    return MctIca(tmp_path / f"test{ica_ext}", ica_obj)
+    return mct_ica_factory(ica_ext)
 
 
 @pytest.fixture

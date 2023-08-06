@@ -12,6 +12,8 @@ from mne_cli_tools.mct_types.annots_type import MctAnnots
 from mne_cli_tools.mct_types.base import MctType
 from mne_cli_tools.mct_types.epochs_type import EXTENSIONS as EPOCHS_EXTENSIONS
 from mne_cli_tools.mct_types.epochs_type import MctEpochs
+from mne_cli_tools.mct_types.ica_type import EXTENSIONS as ICA_EXTENSIONS
+from mne_cli_tools.mct_types.ica_type import MctIca
 from mne_cli_tools.mct_types.raw_type import EXTENSIONS as RAW_EXTENSIONS
 from mne_cli_tools.mct_types.raw_type import MctRaw
 
@@ -60,12 +62,13 @@ def ftype(ext: str) -> Ftype:
 
 
 @pytest.fixture
-def mct_obj(
+def mct_obj(  # noqa: WPS211
     ftype: Ftype,
     ext: str,
     mct_raw_factory: Callable[[str], MctRaw],
     mct_epochs_factory: Callable[[str], MctEpochs],
     mct_annots_factory: Callable[[str], MctAnnots],
+    mct_ica_factory: Callable[[str], MctIca],
 ) -> MctType:
     match ftype:
         case Ftype.raw:
@@ -74,6 +77,8 @@ def mct_obj(
             return mct_epochs_factory(ext)
         case Ftype.annots:
             return mct_annots_factory(ext)
+        case Ftype.ica:
+            return mct_ica_factory(ext)
         case _:
             raise ValueError
 
