@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 
-class MctType(Protocol):
+class QfType(Protocol):
     """Protocol for defining supported types."""
 
     fpath: Path

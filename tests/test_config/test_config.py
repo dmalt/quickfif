@@ -1,5 +1,5 @@
 """Test configuration consistency."""
-from mne_cli_tools.config import EXT_TO_FTYPE, FTYPE_TO_EXT
+from quickfif.config import EXT_TO_FTYPE, FTYPE_TO_EXT
 
 
 def test_no_duplicates_in_extensions():

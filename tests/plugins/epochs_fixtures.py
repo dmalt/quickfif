@@ -1,4 +1,4 @@
-"""Mct epochs fixtures."""
+"""Qf epochs fixtures."""
 from typing import TYPE_CHECKING, Callable, Protocol
 
 import numpy as np
@@ -6,8 +6,8 @@ import pytest
 from mne import EpochsArray, create_info
 from mne.epochs import EpochsFIF
 
-from mne_cli_tools.mct_types.epochs_type import EXTENSIONS as EPOCHS_EXTENSIONS
-from mne_cli_tools.mct_types.epochs_type import MctEpochs
+from quickfif.qf_types.epochs_type import EXTENSIONS as EPOCHS_EXTENSIONS
+from quickfif.qf_types.epochs_type import QfEpochs
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -22,7 +22,7 @@ class EpochsFactory(Protocol):  # noqa: D101
 
 @pytest.fixture
 def epochs_obj_factory() -> EpochsFactory:
-    """Sample MctEpochs object factory."""
+    """Sample QfEpochs object factory."""
 
     def factory(
         n_epo: int, n_ch: int, sfreq: float, epo_dur_sec: float, ch_types="misc"
@@ -47,23 +47,23 @@ def epochs_ext(request: pytest.FixtureRequest) -> str:
 
 
 @pytest.fixture
-def mct_epochs_factory(
+def qf_epochs_factory(
     tmp_path: "Path", small_epochs_obj: EpochsFIF
-) -> Callable[[str], MctEpochs]:
-    def factory(epochs_ext: str) -> MctEpochs:
-        return MctEpochs(tmp_path / f"test{epochs_ext}", small_epochs_obj)
+) -> Callable[[str], QfEpochs]:
+    def factory(epochs_ext: str) -> QfEpochs:
+        return QfEpochs(tmp_path / f"test{epochs_ext}", small_epochs_obj)
 
     return factory
 
 
 @pytest.fixture
-def mct_epochs(epochs_ext: str, mct_epochs_factory: Callable[[str], MctEpochs]) -> MctEpochs:
-    """Mct ica instance."""
-    return mct_epochs_factory(epochs_ext)
+def qf_epochs(epochs_ext: str, qf_epochs_factory: Callable[[str], QfEpochs]) -> QfEpochs:
+    """Qf ica instance."""
+    return qf_epochs_factory(epochs_ext)
 
 
 @pytest.fixture
-def saved_mct_epochs(mct_epochs) -> MctEpochs:
-    """Mct ica instance saved to filesystem."""
-    mct_epochs.epochs.save(mct_epochs.fpath)
-    return mct_epochs
+def saved_qf_epochs(qf_epochs) -> QfEpochs:
+    """Qf ica instance saved to filesystem."""
+    qf_epochs.epochs.save(qf_epochs.fpath)
+    return qf_epochs

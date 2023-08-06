@@ -1,11 +1,11 @@
-"""Mct ica fixtures."""
+"""Qf ica fixtures."""
 from typing import TYPE_CHECKING, Callable
 
 import pytest
 from mne.preprocessing import ICA
 
-from mne_cli_tools.mct_types.ica_type import EXTENSIONS as ICA_EXTENSIONS
-from mne_cli_tools.mct_types.ica_type import MctIca
+from quickfif.qf_types.ica_type import EXTENSIONS as ICA_EXTENSIONS
+from quickfif.qf_types.ica_type import QfIca
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -32,21 +32,21 @@ def ica_ext(request: pytest.FixtureRequest) -> str:
 
 
 @pytest.fixture
-def mct_ica_factory(tmp_path: "Path", ica_obj: ICA) -> Callable[[str], MctIca]:
-    def factory(ica_ext: str) -> MctIca:
-        return MctIca(tmp_path / f"test{ica_ext}", ica_obj)
+def qf_ica_factory(tmp_path: "Path", ica_obj: ICA) -> Callable[[str], QfIca]:
+    def factory(ica_ext: str) -> QfIca:
+        return QfIca(tmp_path / f"test{ica_ext}", ica_obj)
 
     return factory
 
 
 @pytest.fixture
-def mct_ica(ica_ext: str, mct_ica_factory: Callable[[str], MctIca]) -> MctIca:
-    """Mct ica instance."""
-    return mct_ica_factory(ica_ext)
+def qf_ica(ica_ext: str, qf_ica_factory: Callable[[str], QfIca]) -> QfIca:
+    """Qf ica instance."""
+    return qf_ica_factory(ica_ext)
 
 
 @pytest.fixture
-def saved_mct_ica(mct_ica) -> MctIca:
-    """Mct ica instance saved to filesystem."""
-    mct_ica.ica.save(mct_ica.fpath)
-    return mct_ica
+def saved_qf_ica(qf_ica) -> QfIca:
+    """Qf ica instance saved to filesystem."""
+    qf_ica.ica.save(qf_ica.fpath)
+    return qf_ica

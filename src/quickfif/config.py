@@ -1,12 +1,12 @@
-"""Configure dispatch on MctType objects for supported file types."""
+"""Configure dispatch on QfType objects for supported file types."""
 from enum import StrEnum
 from functools import singledispatch
 from pathlib import Path
 from types import MappingProxyType
 from typing import Callable, Final, TypeAlias
 
-from mne_cli_tools.mct_types import annots_type, epochs_type, ica_type, raw_type
-from mne_cli_tools.mct_types.base import MctType
+from quickfif.qf_types import annots_type, epochs_type, ica_type, raw_type
+from quickfif.qf_types.base import QfType
 
 Ext: TypeAlias = "str"
 
@@ -26,7 +26,7 @@ class Ftype(StrEnum):
     epochs = "epochs"
 
 
-_ftype_to_read_func: dict[Ftype, Callable[[Path], MctType]] = {
+_ftype_to_read_func: dict[Ftype, Callable[[Path], QfType]] = {
     Ftype.epochs: epochs_type.read,
     Ftype.annots: annots_type.read,
     Ftype.ica: ica_type.read,
@@ -46,8 +46,8 @@ FTYPE_TO_EXT: Final = MappingProxyType(_ftype_to_ext)
 EXT_TO_FTYPE: Final = MappingProxyType(_ext_to_ftype)
 
 
-def mct_read(fpath: Path, ftype: Ftype) -> MctType:
-    """Read MctType object."""
+def qf_read(fpath: Path, ftype: Ftype) -> QfType:
+    """Read QfType object."""
     return _ftype_to_read_func[ftype](fpath)
 
 
@@ -56,10 +56,10 @@ class UnsupportedOperationError(Exception):
 
 
 @singledispatch
-def mct_save(mct_obj: MctType, dst: Path, overwrite: bool) -> None:  # pyright: ignore
-    """Copy mne object."""
-    raise UnsupportedOperationError(f"copy is not supported for {mct_obj}")
+def qf_save(qf_obj: QfType, dst: Path, overwrite: bool) -> None:  # pyright: ignore
+    """Save mne object."""
+    raise UnsupportedOperationError(f"'Save as' is not supported for {qf_obj}")
 
 
-mct_save.register(raw_type.save)
-mct_save.register(epochs_type.save)
+qf_save.register(raw_type.save)
+qf_save.register(epochs_type.save)

@@ -1,13 +1,13 @@
-"""Fake MctType implementation for testing."""
+"""Fake QfType implementation for testing."""
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from mne_cli_tools.config import Ftype
+from quickfif.config import Ftype
 
 
 @dataclass
-class FakeMctType(object):
-    """Fake `MctType` implementation."""
+class FakeQfType(object):
+    """Fake `QfType` implementation."""
 
     fpath: Path
     mne_obj: str

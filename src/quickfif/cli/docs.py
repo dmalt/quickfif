@@ -1,7 +1,7 @@
 """CLI documentation."""
 from typing import Final
 
-from mne_cli_tools.config import Ftype
+from quickfif.config import Ftype
 
 FTYPE_HELP: Final = "Manually specify file type instead of guessing it from extension"
 UNSUPPORTED_FTYPE_ERROR_MSG: Final = (

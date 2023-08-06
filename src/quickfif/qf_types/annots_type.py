@@ -13,8 +13,8 @@ SUMMARY_HEADER: Final = "Annotations duration statistics"
 
 
 @dataclass
-class MctAnnots(object):
-    """MctType implementation for mne.Annotations."""
+class QfAnnots(object):
+    """QfType implementation for mne.Annotations."""
 
     fpath: Path
     annots: Annotations
@@ -42,7 +42,7 @@ def get_annots_summary(annots: Annotations) -> str:
     return joint_df.to_string(float_format=lambda x: "{0:.2f}".format(x))
 
 
-def read(fpath: Path) -> MctAnnots:
+def read(fpath: Path) -> QfAnnots:
     """Read the annotations."""
     annots = read_annotations(str(fpath))  # noqa: WPS601 (shadowed class attr)
-    return MctAnnots(fpath, annots)
+    return QfAnnots(fpath, annots)

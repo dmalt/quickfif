@@ -5,7 +5,7 @@ from typing import Callable
 
 import pytest
 
-from mne_cli_tools.ipython import embed_ipython
+from quickfif.ipython import embed_ipython
 
 
 @pytest.fixture

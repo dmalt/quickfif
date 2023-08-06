@@ -1,4 +1,4 @@
-"""Mct raw fixtures."""
+"""Qf raw fixtures."""
 from typing import TYPE_CHECKING, Callable
 
 import numpy as np
@@ -6,8 +6,8 @@ import pytest
 from mne import create_info
 from mne.io import Raw, RawArray
 
-from mne_cli_tools.mct_types.raw_type import EXTENSIONS as RAW_EXTENSIONS
-from mne_cli_tools.mct_types.raw_type import MctRaw
+from quickfif.qf_types.raw_type import EXTENSIONS as RAW_EXTENSIONS
+from quickfif.qf_types.raw_type import QfRaw
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -18,7 +18,7 @@ RawFactory = Callable[[int, float, float], RawArray]
 
 @pytest.fixture
 def raw_obj_factory() -> RawFactory:
-    """Sample MctRaw object factory."""
+    """Sample QfRaw object factory."""
 
     def factory(n_ch: int, sfreq: float, dur_sec: float, ch_types="misc") -> RawArray:
         n_samp = int(dur_sec * sfreq)
@@ -41,34 +41,34 @@ def raw_ext(request: pytest.FixtureRequest) -> str:
 
 
 @pytest.fixture
-def mct_raw_factory(tmp_path: "Path", small_raw_obj: Raw) -> Callable[[str], MctRaw]:
+def qf_raw_factory(tmp_path: "Path", small_raw_obj: Raw) -> Callable[[str], QfRaw]:
     """
-    `MctType` object with fpath pointing to to saved wrapped `mne.io.Raw` object.
+    `QfType` object with fpath pointing to to saved wrapped `mne.io.Raw` object.
 
     fpath ends with one of the supported extensions.
 
     """
 
-    def factory(raw_ext: str) -> MctRaw:
+    def factory(raw_ext: str) -> QfRaw:
         save_fpath = tmp_path / f"test{raw_ext}"
-        return MctRaw(save_fpath, small_raw_obj)  # pyright: ignore
+        return QfRaw(save_fpath, small_raw_obj)  # pyright: ignore
 
     return factory
 
 
 @pytest.fixture
-def mct_raw(raw_ext: str, mct_raw_factory: Callable[[str], MctRaw]) -> MctRaw:
+def qf_raw(raw_ext: str, qf_raw_factory: Callable[[str], QfRaw]) -> QfRaw:
     """
-    `MctType` object with fpath pointing to to saved wrapped `mne.io.Raw` object.
+    `QfType` object with fpath pointing to to saved wrapped `mne.io.Raw` object.
 
     fpath ends with one of the supported extensions.
 
     """
-    return mct_raw_factory(raw_ext)
+    return qf_raw_factory(raw_ext)
 
 
 @pytest.fixture
-def saved_mct_raw(mct_raw: MctRaw) -> MctRaw:
-    """Mct raw saved to a filesystem."""
-    mct_raw.raw.save(mct_raw.fpath)
-    return mct_raw
+def saved_qf_raw(qf_raw: QfRaw) -> QfRaw:
+    """Qf raw saved to a filesystem."""
+    qf_raw.raw.save(qf_raw.fpath)
+    return qf_raw

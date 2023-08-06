@@ -14,7 +14,7 @@ python3 -m pip install --user pipx
 pipx install git+https://github.com/dmalt/mne-cli-tools.git
 ```
 
-The `mct` command should now be available in the terminal.
+The `qf` command should now be available in the terminal.
 
 To preview a file, run
 
@@ -91,7 +91,7 @@ The command will show current configuration in json format, e.g:
 ```json
 {
   "ftype_plugins": {
-    "mne_cli_tools.mct_types.raw_fif": {
+    "quickfif.qf_types.raw_fif": {
       "extensions": [
         "raw.fif",
         "raw_sss.fif",
@@ -107,13 +107,13 @@ The command will show current configuration in json format, e.g:
         "_ieeg.fif.gz"
       ]
     },
-    "mne_cli_tools.mct_types.annotations": {
+    "quickfif.qf_types.annotations": {
       "extensions": ["_annot.fif", "-annot.fif"]
     },
-    "mne_cli_tools.mct_types.epochs": {
+    "quickfif.qf_types.epochs": {
       "extensions": ["-epo.fif", "_epo.fif"]
     },
-    "mne_cli_tools.mct_types.ica": {
+    "quickfif.qf_types.ica": {
       "extensions": ["_ica.fif", "-ica.fif"]
     }
   }
@@ -135,11 +135,11 @@ from dataclasses import asdict, dataclass, field
 
 import mne  # type: ignore
 
-from mne_cli_tools import factory
+from quickfif import factory
 
 
 @dataclass
-class MctEpochs:
+class QfEpochs:
     fname: str
     epochs: mne.Epochs = field(init=False)
 
@@ -155,9 +155,9 @@ class MctEpochs:
 
 def initialize(extensions: list[str]) -> None:
     for ext in extensions:
-        factory.register(ext, MctEpochs)
+        factory.register(ext, QfEpochs)
 ```
 
 To add this plugin to `pipx` virtualenv, use `pipx inject`. Then, create a
-custom configuration from `mct --show-config` and specify your `ftype_plugin`
+custom configuration from `qf --show-config` and specify your `ftype_plugin`
 and the associated extensions.

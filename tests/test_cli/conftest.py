@@ -3,8 +3,8 @@
 import pytest
 from click.testing import CliRunner
 
-from mne_cli_tools.config import Ftype
-from mne_cli_tools.mct_types.base import MctType
+from quickfif.config import Ftype
+from quickfif.qf_types.base import QfType
 
 
 @pytest.fixture
@@ -20,6 +20,6 @@ def ftype_args(request, ftype: Ftype) -> list[str]:
 
 
 @pytest.fixture()
-def main_args(ftype_args: list[str], saved_mct_obj: MctType) -> list[str]:
+def main_args(ftype_args: list[str], saved_qf_obj: QfType) -> list[str]:
     """Ftype option as returned by click."""
-    return ftype_args + [str(saved_mct_obj.fpath)]
+    return ftype_args + [str(saved_qf_obj.fpath)]

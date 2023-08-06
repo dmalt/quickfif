@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING, Callable
 import pytest
 from click.testing import CliRunner
 
-from mne_cli_tools.cli import main
-from mne_cli_tools.cli.errors import ExitCode
-from mne_cli_tools.config import EXT_TO_FTYPE
-from mne_cli_tools.mct_types.base import MctType
+from quickfif.cli import main
+from quickfif.cli.errors import ExitCode
+from quickfif.config import EXT_TO_FTYPE
+from quickfif.qf_types.base import QfType
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -70,13 +70,13 @@ def assert_similar(a: str, b: str, thresh: float = 0.9) -> None:
 
 
 @pytest.mark.parametrize("ext", ["raw.fif"])
-def test_preview_outputs_mct_obj_str(
-    cli: CliRunner, saved_mct_obj: MctType, main_args: list[str]
+def test_preview_outputs_qf_obj_str(
+    cli: CliRunner, saved_qf_obj: QfType, main_args: list[str]
 ) -> None:
     """Test the whole thing on previewing."""
     cli_result = cli.invoke(main.main, main_args)
 
     assert cli_result.exit_code == ExitCode.ok, cli_result.output
-    # for some mct types we print info which may differ a bit for read vs created objects
+    # for some qf types we print info which may differ a bit for read vs created objects
     # so we check for similarity, not equality
-    assert_similar(saved_mct_obj.summary, cli_result.output)
+    assert_similar(saved_qf_obj.summary, cli_result.output)

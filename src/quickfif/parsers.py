@@ -7,7 +7,7 @@ into click exceptions which cause graceful app termination.
 """
 from pathlib import Path
 
-from mne_cli_tools.config import EXT_TO_FTYPE, Ftype
+from quickfif.config import EXT_TO_FTYPE, Ftype
 
 
 def parse_ftype(fpath: Path) -> Ftype:
@@ -26,7 +26,7 @@ def parse_ftype(fpath: Path) -> Ftype:
 
     Raises
     ------
-    mne_cli_tools.api.UnsupportedFtypeError
+    quickfif.api.UnsupportedFtypeError
         If fname doesn't end with one of the extensions provided by e2f
 
     Examples
