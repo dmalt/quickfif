@@ -1,4 +1,4 @@
-# MNE CLI Tools
+# Quickfif
 
 Preview `.fif` files (raw data, epochs, annotations, ica solutions)
 info from terminal, inspect them in ipython console and more.
@@ -11,7 +11,7 @@ To install the tools, run
 
 ```bash
 python3 -m pip install --user pipx
-pipx install git+https://github.com/dmalt/mne-cli-tools.git
+pipx install git+https://github.com/dmalt/quickfif.git
 ```
 
 The `qf` command should now be available in the terminal.
@@ -19,7 +19,7 @@ The `qf` command should now be available in the terminal.
 To preview a file, run
 
 ```bash
-mct <filename.fif>
+qfif <filename.fif>
 ```
 
 ![preview example](https://github.com/dmalt/mne-cli-tools/blob/master/docs/preview.png?raw=true)
@@ -27,7 +27,7 @@ mct <filename.fif>
 To inspect the file in ipython console, run
 
 ```bash
-mct <filename.fif> inspect
+qfif <filename.fif> inspect
 ```
 
 ![inspect example](https://github.com/dmalt/mne-cli-tools/blob/master/docs/inspect.png?raw=true)
@@ -59,105 +59,20 @@ For a complete ranger configuration example, checkout my [ranger configuration](
 
 ## Other functionality
 
-### Splits-awere copying for large `.fif` files
+### Splits-awere saving for large `.fif` files
 
 `.fif` format doesn't support files larger than 2 GB. To bypass this issue,
-large `.fif` files are stored in the so-called splits: the file is divided
-into parts under 2 GB which are stored separately. The drawback of such scheme
-is that the first file has to internally maintain links to the next splits
-which are tied to the filenames. It makes splits renaming problematic, since
-the reanming breaks the internal filename links. To copy the large `.fif` file
-properly, we need to read it and then write with a new file name. The following
-command is a shortcut for that:
+large `.fif` files are stored in the so-called splits: parts under 2 GB stored
+separately. To keep track of its parts the first (main) file has to internally
+maintain filenames of the rest of the splits. It makes splits renaming
+problematic, since the reanming breaks the internal filename links. To copy the
+large `.fif` file properly, we need to read it and then write with a new file
+name. The following command is a shortcut for that:
 
 ```bash
-mct <filename_meg.fif> copy <dst_meg.fif>
+qfif <filename_meg.fif> saveas <dst_meg.fif>
 ```
 
 ### Supported file types and configuration
 
-Under the hood, `mct` relies on file extensions to determine the correct type.
-These extensions and the associated types are set up via plugins, which are specified
-in the configuration `.json` file.
-
-To show current configuration, run
-
-```bash
-mct --show-config
-```
-
-The command will show current configuration in json format, e.g:
-
-```json
-{
-  "ftype_plugins": {
-    "quickfif.qf_types.raw_fif": {
-      "extensions": [
-        "raw.fif",
-        "raw_sss.fif",
-        "raw_tsss.fif",
-        "_meg.fif",
-        "_eeg.fif",
-        "_ieeg.fif",
-        "raw.fif.gz",
-        "raw_sss.fif.gz",
-        "raw_tsss.fif.gz",
-        "_meg.fif.gz",
-        "_eeg.fif.gz",
-        "_ieeg.fif.gz"
-      ]
-    },
-    "quickfif.qf_types.annotations": {
-      "extensions": ["_annot.fif", "-annot.fif"]
-    },
-    "quickfif.qf_types.epochs": {
-      "extensions": ["-epo.fif", "_epo.fif"]
-    },
-    "quickfif.qf_types.ica": {
-      "extensions": ["_ica.fif", "-ica.fif"]
-    }
-  }
-}
-```
-
-To specify a custom configuration, use `--config` flag.
-
-#### Extending mct
-
-`mct` utilizes plugin-based architecture. You can extend it via creating an
-external module handling a particular file type and configuring the associated
-extensions via the configuration `.json` file (see the section above).
-
-Below is a plugin example for epochs type:
-
-```python
-from dataclasses import asdict, dataclass, field
-
-import mne  # type: ignore
-
-from quickfif import factory
-
-
-@dataclass
-class QfEpochs:
-    fname: str
-    epochs: mne.Epochs = field(init=False)
-
-    def __post_init__(self):
-        self.epochs = mne.read_epochs(self.fname, verbose="ERROR")  # pyright: ignore
-
-    def __str__(self):
-        return str(self.epochs.info)
-
-    def to_dict(self):
-        return asdict(self)
-
-
-def initialize(extensions: list[str]) -> None:
-    for ext in extensions:
-        factory.register(ext, QfEpochs)
-```
-
-To add this plugin to `pipx` virtualenv, use `pipx inject`. Then, create a
-custom configuration from `qf --show-config` and specify your `ftype_plugin`
-and the associated extensions.
+Under the hood, `qfif` relies on file extensions to determine the correct type.
