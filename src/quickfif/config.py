@@ -63,3 +63,4 @@ def qf_save(qf_obj: QfType, dst: Path, overwrite: bool) -> None:  # pyright: ign
 
 qf_save.register(raw_type.save)
 qf_save.register(epochs_type.save)
+qf_save.register(ica_type.save)

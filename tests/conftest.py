@@ -42,7 +42,7 @@ def mock_fn_factory(mocker: MockerFixture) -> Callable[[object, str], Mock]:
     return factory
 
 
-@pytest.fixture(params=raw_type.EXTENSIONS + epochs_type.EXTENSIONS)
+@pytest.fixture(params=raw_type.EXTENSIONS + epochs_type.EXTENSIONS + ica_type.EXTENSIONS)
 def ext(request) -> str:
     """`QfType` obj saved to a filesystem."""
     return request.param
@@ -63,6 +63,7 @@ def qf_obj(  # noqa: WPS211
     qf_annots_factory: Callable[[str], annots_type.QfAnnots],
     qf_ica_factory: Callable[[str], ica_type.QfIca],
 ) -> QfType:
+    """General QfType object. Concrete type is determined by ftype."""
     ftype_to_obj: dict[Ftype, QfType] = {
         Ftype.raw: qf_raw_factory(ext),
         Ftype.epochs: qf_epochs_factory(ext),
@@ -74,5 +75,6 @@ def qf_obj(  # noqa: WPS211
 
 @pytest.fixture
 def saved_qf_obj(qf_obj: QfType) -> QfType:
+    """`QfType` object saved at `QfType.fpath`."""
     qf_save(qf_obj, qf_obj.fpath, overwrite=False)
     return qf_obj

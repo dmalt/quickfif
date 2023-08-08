@@ -29,3 +29,10 @@ def read(fpath: Path) -> QfIca:
     """Read ICA solution."""
     ica = read_ica(str(fpath), verbose="ERROR")  # noqa: WPS601
     return QfIca(fpath, ica)
+
+
+def save(qf_obj: QfIca, dst: Path, overwrite: bool) -> None:
+    """Save ICA solution."""
+    if dst.is_dir():
+        dst = dst / qf_obj.fpath.name
+    qf_obj.ica.save(fname=dst, overwrite=overwrite)
