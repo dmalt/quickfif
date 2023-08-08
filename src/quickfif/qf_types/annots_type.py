@@ -46,3 +46,10 @@ def read(fpath: Path) -> QfAnnots:
     """Read the annotations."""
     annots = read_annotations(str(fpath))  # noqa: WPS601 (shadowed class attr)
     return QfAnnots(fpath, annots)
+
+
+def save(qf_obj: QfAnnots, dst: Path, overwrite: bool) -> None:
+    """Save ICA solution."""
+    if dst.is_dir():
+        dst = dst / qf_obj.fpath.name
+    qf_obj.annots.save(fname=dst, overwrite=overwrite)

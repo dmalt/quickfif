@@ -42,7 +42,12 @@ def mock_fn_factory(mocker: MockerFixture) -> Callable[[object, str], Mock]:
     return factory
 
 
-@pytest.fixture(params=raw_type.EXTENSIONS + epochs_type.EXTENSIONS + ica_type.EXTENSIONS)
+@pytest.fixture(
+    params=raw_type.EXTENSIONS
+    + epochs_type.EXTENSIONS
+    + ica_type.EXTENSIONS
+    + annots_type.EXTENSIONS
+)
 def ext(request) -> str:
     """`QfType` obj saved to a filesystem."""
     return request.param
