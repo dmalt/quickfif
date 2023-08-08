@@ -1,6 +1,6 @@
 # Quickfif
 
-Quick operations on `.fif` files for the terminal:
+Quick operations on `.fif` files from the terminal:
 
 - preview
 - inspect in ipython console
