@@ -11,7 +11,7 @@ from quickfif.qf_types import annots_type, epochs_type, ica_type, raw_type
 from quickfif.qf_types.base import QfType
 
 pytest_plugins = (
-    "tests.plugins.raw_fif_fixtures",
+    "tests.plugins.raw_fixtures",
     "tests.plugins.annots_fixtures",
     "tests.plugins.ica_fixtures",
     "tests.plugins.epochs_fixtures",

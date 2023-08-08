@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-
 def test_fails_wo_args(cli: CliRunner) -> None:
     """CLI must fail when executed without any arguments."""
     cli_result = cli.invoke(main.main)
