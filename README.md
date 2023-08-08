@@ -1,7 +1,11 @@
 # Quickfif
 
-Preview `.fif` files (raw data, epochs, annotations, ica solutions)
-info from terminal, inspect them in ipython console and more.
+Quick operations on `.fif` files for the terminal:
+
+- preview
+- inspect in ipython console
+- splits-aware exports and 'saveas'
+
 Ready for integration with CLI-based file managers, such as
 [ranger](https://github.com/ranger/ranger).
 
