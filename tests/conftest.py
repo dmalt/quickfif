@@ -7,15 +7,8 @@ import pytest
 from pytest_mock import MockerFixture
 
 from quickfif.config import EXT_TO_FTYPE, Ftype, qf_save
-from quickfif.qf_types.annots_type import EXTENSIONS as ANNOTS_EXTENSIONS
-from quickfif.qf_types.annots_type import QfAnnots
+from quickfif.qf_types import annots_type, epochs_type, ica_type, raw_type
 from quickfif.qf_types.base import QfType
-from quickfif.qf_types.epochs_type import EXTENSIONS as EPOCHS_EXTENSIONS
-from quickfif.qf_types.epochs_type import QfEpochs
-from quickfif.qf_types.ica_type import EXTENSIONS as ICA_EXTENSIONS
-from quickfif.qf_types.ica_type import QfIca
-from quickfif.qf_types.raw_type import EXTENSIONS as RAW_EXTENSIONS
-from quickfif.qf_types.raw_type import QfRaw
 
 pytest_plugins = (
     "tests.plugins.raw_fif_fixtures",
@@ -49,7 +42,7 @@ def mock_fn_factory(mocker: MockerFixture) -> Callable[[object, str], Mock]:
     return factory
 
 
-@pytest.fixture(params=RAW_EXTENSIONS + EPOCHS_EXTENSIONS)
+@pytest.fixture(params=raw_type.EXTENSIONS + epochs_type.EXTENSIONS)
 def ext(request) -> str:
     """`QfType` obj saved to a filesystem."""
     return request.param
@@ -65,22 +58,18 @@ def ftype(ext: str) -> Ftype:
 def qf_obj(  # noqa: WPS211
     ftype: Ftype,
     ext: str,
-    qf_raw_factory: Callable[[str], QfRaw],
-    qf_epochs_factory: Callable[[str], QfEpochs],
-    qf_annots_factory: Callable[[str], QfAnnots],
-    qf_ica_factory: Callable[[str], QfIca],
+    qf_raw_factory: Callable[[str], raw_type.QfRaw],
+    qf_epochs_factory: Callable[[str], epochs_type.QfEpochs],
+    qf_annots_factory: Callable[[str], annots_type.QfAnnots],
+    qf_ica_factory: Callable[[str], ica_type.QfIca],
 ) -> QfType:
-    match ftype:
-        case Ftype.raw:
-            return qf_raw_factory(ext)
-        case Ftype.epochs:
-            return qf_epochs_factory(ext)
-        case Ftype.annots:
-            return qf_annots_factory(ext)
-        case Ftype.ica:
-            return qf_ica_factory(ext)
-        case _:
-            raise ValueError
+    ftype_to_obj = {
+        Ftype.raw: qf_raw_factory(ext),
+        Ftype.epochs: qf_epochs_factory(ext),
+        Ftype.annots: qf_annots_factory(ext),
+        Ftype.ica: qf_ica_factory(ext),
+    }
+    return ftype_to_obj[ftype]
 
 
 @pytest.fixture

@@ -10,7 +10,7 @@ from quickfif.ipython import embed_ipython
 
 @pytest.fixture
 def patch_io(monkeypatch: pytest.MonkeyPatch) -> Callable[[str], StringIO]:
-    """Patch stdin and stdtout function. Return fake_stdout stream."""
+    """Patch stdin and stdtout. Return fake_stdout stream."""
 
     def factory(stdin_str: str) -> StringIO:
         fake_stdin = StringIO(stdin_str)

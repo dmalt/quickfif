@@ -16,7 +16,9 @@ if TYPE_CHECKING:
 
 def test_fails_wo_args(cli: CliRunner) -> None:
     """CLI must fail when executed without any arguments."""
-    assert cli.invoke(main.main).exit_code == ExitCode.bad_click_path
+    cli_result = cli.invoke(main.main)
+
+    assert cli_result.exit_code == ExitCode.bad_click_path
 
 
 @pytest.mark.parametrize(

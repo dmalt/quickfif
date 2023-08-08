@@ -67,7 +67,6 @@ def saveas_args(
     return args
 
 
-@pytest.mark.parametrize("saveas_args", [False], indirect=True)
 def test_dst_file_appears_after_save(
     cli: CliRunner, save_dst: "Path", saveas_args: list[str]
 ) -> None:
@@ -78,10 +77,12 @@ def test_dst_file_appears_after_save(
     assert save_dst.exists()
 
 
-def test_saveas_fail(
+@pytest.mark.parametrize("saveas_args", [False], indirect=True)
+@pytest.mark.parametrize("ftype_args", [False], indirect=True)
+def test_saveas_fails_gracefully_on_save_exception(
     cli: CliRunner, saveas_args: list[str], monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Test saveas CLI command calls api function."""
+    """Test saveas terminates gracefully when wrapped function throws exception."""
 
     def fake_save(mne_obj, dst, overwrite):  # noqa: WPS430  # pyright: ignore
         raise Exception  # noqa: WPS454
