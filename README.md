@@ -26,7 +26,6 @@ To preview a file, run
 qfif <filename.fif>
 ```
 
-![preview example](https://github.com/dmalt/mne-cli-tools/blob/master/docs/preview.png?raw=true)
 
 To inspect the file in ipython console, run
 
@@ -34,7 +33,6 @@ To inspect the file in ipython console, run
 qfif <filename.fif> inspect
 ```
 
-![inspect example](https://github.com/dmalt/mne-cli-tools/blob/master/docs/inspect.png?raw=true)
 
 From the ipython header you can see, that the loading script populated `fname`
 and `raw` objects.
@@ -48,7 +46,7 @@ extension-handling section:
 case "$extension" in
     # ...
     fif)
-        try mct $path && { dump | trim; exit 0; } || exit 1;;
+        try qfif $path && { dump | trim; exit 0; } || exit 1;;
     # ...
 esac
 ```
@@ -56,7 +54,7 @@ esac
 For opening files from `ranger`, go to `ranger/rifle.conf` and add
 
 ```conf
-ext fif = mct -- "$1" inspect
+ext fif = qfif -- "$1" inspect
 ```
 
 For a complete ranger configuration example, checkout my [ranger configuration](https://github.com/dmalt/dotfiles/tree/master/ranger)
