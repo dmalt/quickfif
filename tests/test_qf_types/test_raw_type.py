@@ -4,8 +4,10 @@ from typing import Callable
 
 import mne
 import pytest
+from numpy.testing import assert_array_almost_equal
 
 from quickfif.qf_types.raw_type import ANNOTS_SECTION_HEADER, NO_ANNOTS_MSG, QfRaw
+from quickfif.qf_types.raw_type import read as read_qf_raw
 
 
 @pytest.fixture(params=[True, False], ids=["with annots", "without annots"])
@@ -50,3 +52,10 @@ def test_to_dict_wraps_fpath_and_raw(qf_raw: QfRaw) -> None:
 
     assert qf_raw.fpath in res.values()
     assert qf_raw.raw in res.values()
+
+
+def test_read_loads_same_data(saved_qf_raw: QfRaw) -> None:
+    """Check if raw objects saved with supported extensions are loaded fine."""
+    loaded_raw = read_qf_raw(saved_qf_raw.fpath)
+
+    assert_array_almost_equal(saved_qf_raw.raw.get_data(), loaded_raw.raw.get_data())

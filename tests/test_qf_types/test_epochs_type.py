@@ -1,4 +1,5 @@
 """Test qf epochs."""
+
 from numpy.testing import assert_array_almost_equal
 
 from quickfif.qf_types.epochs_type import QfEpochs

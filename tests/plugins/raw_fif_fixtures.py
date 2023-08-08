@@ -34,6 +34,17 @@ def small_raw_obj(raw_obj_factory: RawFactory) -> RawArray:
     return raw_obj_factory(2, 100, 1)
 
 
+@pytest.fixture
+def large_qf_raw(
+    tmp_path: "Path", raw_obj_factory: Callable[[int, float, float], RawArray]
+) -> QfRaw:
+    """`QfRaw` object wrapping mne.io.Raw of ~10MB."""
+    n_ch, sfreq, dur_sec = 10, 1000, 200
+    mne_raw = raw_obj_factory(n_ch, sfreq, dur_sec)  # pyright: ignore
+    fpath = tmp_path / "test_raw.fif"
+    return QfRaw(fpath, mne_raw)  # pyright: ignore
+
+
 @pytest.fixture(params=RAW_EXTENSIONS)
 def raw_ext(request: pytest.FixtureRequest) -> str:
     """Extension for raw fif obj."""

@@ -63,7 +63,7 @@ def qf_obj(  # noqa: WPS211
     qf_annots_factory: Callable[[str], annots_type.QfAnnots],
     qf_ica_factory: Callable[[str], ica_type.QfIca],
 ) -> QfType:
-    ftype_to_obj = {
+    ftype_to_obj: dict[Ftype, QfType] = {
         Ftype.raw: qf_raw_factory(ext),
         Ftype.epochs: qf_epochs_factory(ext),
         Ftype.annots: qf_annots_factory(ext),
