@@ -61,7 +61,7 @@ For a complete ranger configuration example, checkout my [ranger configuration](
 
 ## Other functionality
 
-### Splits-awere saving for large `.fif` files
+### Splits-aware copying for large `.fif` files
 
 `.fif` format doesn't support files larger than 2 GB. To bypass this issue,
 large `.fif` files are stored in the so-called splits: parts under 2 GB stored
