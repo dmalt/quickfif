@@ -29,7 +29,8 @@ def test_to_dict_wraps_fpath_and_annots(qf_annots: QfAnnots) -> None:
 def test_read_loads_same_data(saved_qf_annots: QfAnnots) -> None:
     """Check if raw objects saved with supported extensions are loaded fine."""
     loaded_annots = read_qf_annots(saved_qf_annots.fpath).annots
+    saved_annots = saved_qf_annots.annots
 
-    assert_array_almost_equal(saved_qf_annots.annots.onset, loaded_annots.onset)
-    assert_array_almost_equal(saved_qf_annots.annots.duration, loaded_annots.duration)
-    assert_array_equal(saved_qf_annots.annots.description, loaded_annots.description)
+    assert_array_almost_equal(saved_annots.onset, loaded_annots.onset)  # type: ignore
+    assert_array_almost_equal(saved_annots.duration, loaded_annots.duration)  # type: ignore
+    assert_array_equal(saved_annots.description, loaded_annots.description)

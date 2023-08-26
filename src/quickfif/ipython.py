@@ -2,7 +2,7 @@
 from typing import Any
 
 import IPython
-import matplotlib
+import matplotlib  # type: ignore
 from traitlets.config.loader import Config
 
 
