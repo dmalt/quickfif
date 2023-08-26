@@ -11,7 +11,7 @@ Ready for integration with CLI-based file managers, such as
 
 ## Quickstart
 
-To install the tools, run
+To install `quickfif`, run
 
 ```bash
 python3 -m pip install --user pipx
