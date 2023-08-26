@@ -7,7 +7,7 @@ authors = ["Dmitrii Altukhov <dm.altukhov@ya.ru>"]
 qfif = "quickfif.cli.main:main"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<4.0"
+python = ">=3.11,<4.0"
 mne = "^1.0.3"
 ipython = "^8.4.0"
 pandas = "^1.4.3"
