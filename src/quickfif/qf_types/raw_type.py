@@ -21,10 +21,10 @@ NO_ANNOTS_MSG: Final = "No annotated segments"
 
 def _get_raw_summary(raw: Raw) -> str:
     """Get Raw object text summary."""
-    duration_sec = round(raw.times[-1], 2)
-    n_samp = len(raw.times)
-    size = {"n_chan": len(raw.ch_names), "n_samp": n_samp, "n_sec": duration_sec}
-    header = "Raw data of shape {n_chan} channels x {n_samp} samples ({n_sec} s)".format(**size)
+    duration_sec = round(raw.times[-1], 1)
+    n_ch = len(raw.ch_names)
+    sfreq = round(raw.info["sfreq"], 1)
+    header = f"Raw data {n_ch} channels x {duration_sec} sec, sampling rate: {sfreq} Hz"
     return "\n".join([header, "-" * len(header)])
 
 
