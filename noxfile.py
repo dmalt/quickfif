@@ -27,3 +27,11 @@ def mypy(session: Session) -> None:
     args = session.posargs or locations
     session.run("poetry", "install", external=True)
     session.run("mypy", *args)
+
+
+@nox.session(python="3.11")
+def coverage(session: Session) -> None:
+    """Upload coverage data."""
+    session.install("coverage[toml]", "codecov")
+    session.run("coverage", "xml", "--fail-under=0")
+    session.run("codecov", *session.posargs)
