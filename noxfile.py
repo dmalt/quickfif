@@ -2,7 +2,7 @@
 import nox
 from nox.sessions import Session
 
-locations = "src", "tests", "noxfile.py"
+locations = ("src", "tests", "noxfile.py")
 
 
 @nox.session(python=["3.11"])
