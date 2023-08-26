@@ -2,3 +2,4 @@ __pycache__
 poetry.lock
 .hypothesis
 .coverage
+coverage.xml
