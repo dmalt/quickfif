@@ -33,6 +33,7 @@ def ica_ext(request: pytest.FixtureRequest) -> str:
 
 @pytest.fixture
 def qf_ica_factory(tmp_path: "Path", ica_obj: ICA) -> Callable[[str], QfIca]:
+    """Create QfIca object."""
     def factory(ica_ext: str) -> QfIca:
         return QfIca(tmp_path / f"test{ica_ext}", ica_obj)
 

@@ -1,7 +1,7 @@
 """Test qf annotations."""
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-from quickfif.qf_types.annots_type import QfAnnots, SUMMARY_HEADER
+from quickfif.qf_types.annots_type import SUMMARY_HEADER, QfAnnots
 from quickfif.qf_types.annots_type import read as read_qf_annots
 
 

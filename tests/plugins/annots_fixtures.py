@@ -37,23 +37,23 @@ def annots_ext(request: pytest.FixtureRequest) -> str:
 
 
 @pytest.fixture
-def small_annots_obj(create_fake_annots: Callable[[float, float], Annotations]) -> Annotations:
+def annots_obj(create_fake_annots: Callable[[float, float], Annotations]) -> Annotations:
+    """Lighweight mne.Annotations object."""
     return create_fake_annots(0, 1)
 
 
 @pytest.fixture
-def qf_annots_factory(
-    tmp_path: "Path", small_annots_obj: Annotations
-) -> Callable[[str], QfAnnots]:
+def qf_annots_factory(tmp_path: "Path", annots_obj: Annotations) -> Callable[[str], QfAnnots]:
+    """Create QfAnnots."""
     def factory(annots_ext: str) -> QfAnnots:
         save_fpath = tmp_path / f"test{annots_ext}"
-        return QfAnnots(save_fpath, small_annots_obj)  # pyright: ignore
+        return QfAnnots(save_fpath, annots_obj)  # pyright: ignore
 
     return factory
 
 
 @pytest.fixture
-def qf_annots(annots_ext: str, qf_annots_factory: Callable[[str], Annotations]) -> QfAnnots:
+def qf_annots(annots_ext: str, qf_annots_factory: Callable[[str], QfAnnots]) -> QfAnnots:
     """Qf annotations instance."""
     return qf_annots_factory(annots_ext)
 

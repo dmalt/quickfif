@@ -51,26 +51,21 @@ def large_qf_epochs(  # noqa: WPS210 (too many local variables)
     return QfEpochs(fpath, mne_epochs)  # pyright: ignore
 
 
-@pytest.fixture(params=EPOCHS_EXTENSIONS)
-def epochs_ext(request: pytest.FixtureRequest) -> str:
-    """Extension for raw fif obj."""
-    return request.param
-
-
 @pytest.fixture
-def qf_epochs_factory(
-    tmp_path: "Path", small_epochs_obj: EpochsFIF
-) -> Callable[[str], QfEpochs]:
+def qf_epochs_factory(tmp_path: "Path", small_epochs_obj: EpochsFIF) -> Callable[[str], QfEpochs]:
+    """Create QfEpochs."""
     def factory(epochs_ext: str) -> QfEpochs:
         return QfEpochs(tmp_path / f"test{epochs_ext}", small_epochs_obj)
 
     return factory
 
 
-@pytest.fixture
-def qf_epochs(epochs_ext: str, qf_epochs_factory: Callable[[str], QfEpochs]) -> QfEpochs:
+@pytest.fixture(params=EPOCHS_EXTENSIONS)
+def qf_epochs(
+    request: pytest.FixtureRequest, qf_epochs_factory: Callable[[str], QfEpochs]
+) -> QfEpochs:
     """Qf ica instance."""
-    return qf_epochs_factory(epochs_ext)
+    return qf_epochs_factory(request.param)
 
 
 @pytest.fixture
