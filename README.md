@@ -1,6 +1,7 @@
 # Quickfif
 
 [![Tests](https://github.com/dmalt/quickfif/workflows/Tests/badge.svg)](https://github.com/dmalt/quickfif/actions?workflow=Tests)
+[![Codecov](https://codecov.io/gh/dmalt/quickfif/branch/master/graph/badge.svg)](https://codecov.io/gh/dmalt/quickfif)
 
 Quick operations on `.fif` files from the terminal:
 
