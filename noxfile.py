@@ -2,6 +2,7 @@
 import nox
 from nox.sessions import Session
 
+nox.options.sessions = ["tests", "lint", "mypy"]
 locations = ("src", "tests", "noxfile.py")
 
 
