@@ -1,5 +1,7 @@
 # Quickfif
 
+[![Tests](https://github.com/dmalt/quickfif/workflows/Tests/badge.svg)](https://github.com/dmalt/quickfif/actions?workflow=Tests)
+
 Quick operations on `.fif` files from the terminal:
 
 - preview
