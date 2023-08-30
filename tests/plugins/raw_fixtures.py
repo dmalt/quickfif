@@ -21,17 +21,18 @@ def raw_obj_factory() -> RawFactory:
     """Sample QfRaw object factory."""
 
     def factory(n_ch: int, sfreq: float, dur_sec: float, ch_types="misc") -> RawArray:
-        n_samp = int(dur_sec * sfreq)
+        n_samp = int(dur_sec * sfreq) + 1
         mne_info = create_info(ch_names=n_ch, sfreq=sfreq, ch_types=ch_types)
         return RawArray(data=np.random.randn(n_ch, n_samp), info=mne_info)
 
     return factory
 
 
-@pytest.fixture
-def small_raw_obj(raw_obj_factory: RawFactory) -> RawArray:
+@pytest.fixture(params=[2, 10])
+def small_raw_obj(request: pytest.FixtureRequest, raw_obj_factory: RawFactory) -> RawArray:
     """Small, fast to process mne.io.Raw instance."""
-    return raw_obj_factory(2, 100, 1)
+    n_ch = request.param
+    return raw_obj_factory(n_ch, 100, 1.1)  # noqa: WPS432
 
 
 @pytest.fixture
