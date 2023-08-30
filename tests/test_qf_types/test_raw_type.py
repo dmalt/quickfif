@@ -20,7 +20,7 @@ def expected_summary(maybe_annotated_qf_raw: QfRaw) -> str:
             n_ch, ch_names[0], ch_names[1], "...", ch_names[-1]
         )
     else:
-        chan_str = "  {nchan:3} misc  : " + "".join([f"{n:10s}" for n in ch_names])
+        chan_str = "  {nchan:3} misc  : " + "".join([f"{n:10s}" for n in ch_names])  # noqa: WPS336
 
     if maybe_annotated_qf_raw.raw.annotations:
         annots_str = "\n".join(
